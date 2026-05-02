@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Ultimate Indian Election Civic Portal - Learn, Check, Play and Vote!">
+<title>Indian Election Civic Portal | भारतीय चुनाव पोर्टल</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&display=swap');
+
+:root {
+    --saf: #FF9933; /* Saffron */
+    --wht: #FFFFFF; /* White */
+    --grn: #138808; /* India Green */
+    --nvy: #000080; /* Navy Blue */
+    --bg: #FFF8F0;  /* Warm tint background */
+    --brd: #E0D8C8; /* Borders */
+    --err: #d32f2f;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', 'Noto Sans Devanagari', sans-serif; background: var(--bg); color: var(--nvy); line-height: 1.6; overflow-x: hidden; }
+
+*:focus-visible { outline: 3px solid var(--saf); outline-offset: 2px; }
+
+header { background: var(--wht); padding: 1.5rem; text-align: center; border-bottom: 6px solid var(--saf); position: relative; }
+header::after { content: ''; position: absolute; bottom: -6px; left: 0; right: 0; height: 6px; background: var(--grn); z-index: 10; }
+
+/* Ashoka Chakra Animation */
+.chakra { 
+    width: 50px; height: 50px; border: 3px solid var(--nvy); border-radius: 50%; 
+    display: inline-block; position: relative; animation: spin 5s linear infinite; margin-bottom: 0.5rem;
+}
+.chakra::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%;
+    background: repeating-conic-gradient(from 0deg, var(--nvy) 0deg, var(--nvy) 2deg, transparent 2deg, transparent 15deg);
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+h1 { color: var(--nvy); font-size: 2.2rem; margin: 0; }
+.bilingual { font-size: 0.85em; opacity: 0.8; display: block; margin-top: 0.2rem; }
+
+nav[role="tablist"] { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; padding: 1rem; background: var(--wht); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.tab-btn { background: var(--wht); border: 2px solid var(--nvy); color: var(--nvy); padding: 0.75rem 1.25rem; border-radius: 6px; font-weight: bold; cursor: pointer; transition: transform 0.2s, background 0.2s; font-family: inherit; }
+.tab-btn:hover { background: #f0f0f0; transform: translateY(-2px); }
+.tab-btn[aria-selected="true"] { background: var(--nvy); color: var(--wht); transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,128,0.2); }
+
+main { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; min-height: 60vh; }
+.panel { display: none; opacity: 0; transition: opacity 0.4s ease-in-out; background: var(--wht); border: 2px solid var(--brd); border-radius: 12px; padding: 2rem; box-shadow: 0 8px 16px rgba(0,0,0,0.05); }
+.panel.active { display: block; opacity: 1; animation: fadeIn 0.5s forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+h2 { color: var(--saf); border-bottom: 2px solid var(--brd); padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+
+/* Forms & UI Elements */
+.input-group { margin-bottom: 1rem; }
+label { display: block; font-weight: bold; margin-bottom: 0.5rem; }
+input, select { width: 100%; max-width: 400px; padding: 0.75rem; border: 2px solid var(--brd); border-radius: 6px; font-family: inherit; font-size: 1rem; }
+.btn-primary { background: var(--saf); color: var(--wht); padding: 0.75rem 1.5rem; border: none; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:active { transform: scale(0.95); }
+
+.result-msg { margin-top: 1rem; padding: 1rem; border-radius: 6px; display: none; font-weight: bold; animation: popIn 0.3s; }
+@keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.result-msg.success { background: #e8f5e9; border: 1px solid var(--grn); color: var(--grn); display: block; }
+.result-msg.error { background: #ffebee; border: 1px solid var(--err); color: var(--err); display: block; }
+
+/* Timeline */
+.timeline-track { position: relative; max-width: 600px; margin: 0 auto; border-left: 4px solid var(--brd); padding-left: 2rem; }
+.timeline-item { margin-bottom: 2rem; position: relative; }
+.timeline-item::before { content: ''; position: absolute; left: -2.65rem; top: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--nvy); border: 4px solid var(--wht); transition: background 0.3s; }
+.timeline-item:hover::before { background: var(--saf); transform: scale(1.2); }
+.progress-container { width: 100%; background: var(--brd); height: 20px; border-radius: 10px; overflow: hidden; margin-bottom: 2rem; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--saf), #ffb74d); width: 0%; transition: width 1.5s cubic-bezier(0.25, 0.8, 0.25, 1); }
+
+/* Comic */
+.comic-stage { display: flex; flex-direction: column; align-items: center; }
+.comic-view { width: 100%; max-width: 500px; height: 350px; border: 6px solid var(--nvy); border-radius: 12px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 6rem; background: #e3f2fd; box-shadow: inset 0 0 20px rgba(0,0,0,0.1); transition: background 0.5s; }
+.bubble { position: absolute; top: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--wht); border: 3px solid var(--nvy); padding: 1rem; border-radius: 16px; font-size: 1.2rem; font-weight: bold; opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; width: 80%; box-shadow: 4px 4px 0 rgba(0,0,128,0.2); z-index: 2; }
+.bubble.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+.bubble::after { content: ''; position: absolute; bottom: -15px; left: 20px; border-width: 15px 15px 0; border-style: solid; border-color: var(--nvy) transparent transparent transparent; }
+.praise-text { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 1.5rem; color: var(--grn); font-weight: bold; text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff; opacity: 0; transition: opacity 0.5s; text-align: center; width: 90%; }
+.praise-text.visible { opacity: 1; animation: bounce 1s infinite; }
+@keyframes bounce { 0%, 100% {transform: translateX(-50%) translateY(0);} 50% {transform: translateX(-50%) translateY(-5px);} }
+
+/* Main Quiz */
+.quiz-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.quiz-btn { background: #f5f5f5; border: 2px solid var(--brd); padding: 1.5rem; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.quiz-btn:hover { border-color: var(--nvy); background: #e0e0e0; transform: translateY(-2px); }
+.quiz-btn.correct { background: var(--grn); color: var(--wht); border-color: var(--grn); animation: pulse 0.5s; }
+.quiz-btn.wrong { background: var(--err); color: var(--wht); border-color: var(--err); animation: shake 0.4s; }
+.streak { font-size: 1.5rem; font-weight: bold; color: var(--saf); text-align: center; margin-bottom: 1rem; }
+@keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+@keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
+
+/* Assistant Interface */
+.chat-container { border: 2px solid var(--brd); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; height: 500px; background: #fafafa; }
+.chat-header { background: var(--nvy); color: var(--wht); padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+.lang-select { background: var(--wht); color: var(--nvy); border: none; padding: 0.5rem; border-radius: 4px; font-weight: bold; }
+.chat-history { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+.chat-msg { max-width: 80%; padding: 0.75rem 1rem; border-radius: 12px; font-size: 1rem; animation: popIn 0.3s forwards; }
+.msg-bot { background: #e3f2fd; align-self: flex-start; border-bottom-left-radius: 0; border: 1px solid #bbdefb; }
+.msg-user { background: var(--saf); color: var(--wht); align-self: flex-end; border-bottom-right-radius: 0; }
+.chat-input { display: flex; border-top: 2px solid var(--brd); background: var(--wht); }
+.chat-input input { flex: 1; border: none; padding: 1rem; border-radius: 0; box-shadow: none; max-width: none; }
+.chat-input input:focus { outline: none; background: #f0f8ff; }
+.chat-input button { background: var(--grn); color: var(--wht); border: none; padding: 1rem 2rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+.chat-input button:hover { background: #0f6e06; }
+.quick-replies { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.5rem 1rem; background: #eee; border-top: 1px solid #ddd; }
+.qr-btn { background: var(--wht); border: 1px solid var(--brd); border-radius: 20px; padding: 0.25rem 0.75rem; font-size: 0.85rem; cursor: pointer; color: var(--nvy); }
+.qr-btn:hover { background: #e0e0e0; }
+
+/* Map */
+.map-wrap { width: 100%; height: 350px; border-radius: 8px; overflow: hidden; border: 2px solid var(--brd); margin-top: 1.5rem; transition: transform 0.3s; }
+.map-wrap:hover { transform: scale(1.01); }
+.map-wrap iframe { width: 100%; height: 100%; border: 0; }
+
+/* Confetti */
+.confetti { position: fixed; width: 12px; height: 12px; z-index: 9999; animation: fall linear forwards; top: -20px; }
+@keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+
+/* Footer */
+footer { background: var(--nvy); color: var(--wht); padding: 3rem 1rem 1rem; text-align: center; border-top: 6px solid var(--saf); margin-top: 3rem; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; max-width: 1000px; margin: 0 auto 2rem; }
+.stat-box { background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 8px; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); transition: background 0.3s; }
+.stat-box:hover { background: rgba(255,255,255,0.2); }
+.stat-num { font-size: 2.5rem; color: var(--saf); display: block; margin-bottom: 0.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+.official-link { display: inline-block; background: var(--grn); color: var(--wht); padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 1.5rem; border: 2px solid #fff; transition: transform 0.2s; }
+.official-link:hover { transform: scale(1.05); }
+
+/* Hey Agents Cinematic Game */
+#agent-game { padding: 0; background: #000; overflow: hidden; position: relative; width: 100%; max-width: 800px; height: 600px; margin: 0 auto; color: #fff; font-family: 'Inter', sans-serif; }
+.ag-scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s ease; transform-style: preserve-3d; }
+.ag-scene.active { opacity: 1; pointer-events: auto; z-index: 10; }
+
+/* Sc 1: Walk */
+#ag-sc1 { perspective: 800px; }
+.ag-street { width: 200%; height: 200%; background: repeating-linear-gradient(0deg, #111 0, #111 20px, #333 20px, #333 40px); transform: rotateX(60deg) translateZ(-200px); animation: agWalk 4s linear infinite; }
+@keyframes agWalk { from { transform: rotateX(60deg) translateZ(-200px) translateY(0); } to { transform: rotateX(60deg) translateZ(-200px) translateY(40px); } }
+.ag-title-overlay { position: absolute; z-index: 10; text-align: center; text-shadow: 0 0 20px var(--saf); }
+.ag-title-overlay h2 { font-size: 3rem; font-family: 'Press Start 2P', monospace; color: #fff; margin: 0 0 1rem; }
+
+/* Sc 2: Checkpoint */
+.ag-hologram { background: rgba(0, 150, 255, 0.1); border: 2px solid rgba(0, 150, 255, 0.5); box-shadow: 0 0 30px rgba(0, 150, 255, 0.3); border-radius: 20px; padding: 2rem; backdrop-filter: blur(10px); text-align: center; width: 80%; max-width: 400px; transform: scale(0.9); transition: all 0.5s; }
+.ag-holo-btn { background: rgba(0, 150, 255, 0.2); border: 1px solid #0096ff; color: #fff; padding: 1rem 2rem; border-radius: 8px; font-size: 1.2rem; cursor: pointer; transition: 0.3s; margin: 1rem 0; width: 100%; font-weight:bold; }
+.ag-holo-btn:hover { background: rgba(0, 150, 255, 0.5); box-shadow: 0 0 15px #0096ff; }
+.ag-agent-emoji { font-size: 5rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px #0096ff); animation: agFloat 3s ease-in-out infinite; }
+
+/* Sc 3: Queue */
+.ag-crowd-area { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; background: radial-gradient(circle, #1a1a2e 0%, #000 100%); }
+.ag-person { position: absolute; font-size: 3rem; transition: transform 1.5s ease, opacity 1s; filter: grayscale(50%); opacity: 0.7; }
+.ag-path-btn { position: absolute; bottom: 10%; background: var(--grn); border: none; color: #fff; padding: 1rem 2rem; border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px var(--grn); z-index: 20; animation: agPulseGlow 2s infinite; font-size:1.2rem;}
+
+/* Sc 4: EVM */
+.ag-evm { background: #e0e0e0; border-radius: 12px; padding: 2rem; width: 90%; max-width: 350px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.8); border: 4px solid #999; }
+.ag-evm-screen { background: #cdffcc; border: 4px inset #999; height: 60px; margin-bottom: 2rem; font-family: monospace; font-size: 1.5rem; color: #000; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 10px rgba(0,255,0,0.2); }
+.ag-evm-btn-row { display: flex; align-items: center; justify-content: space-between; background: #ccc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #aaa; }
+.ag-evm-btn { width: 40px; height: 40px; border-radius: 50%; background: #2196F3; border: none; box-shadow: 0 4px #0d47a1, inset 0 2px rgba(255,255,255,0.5); cursor: pointer; transition: 0.1s; }
+.ag-evm-btn:active { transform: translateY(4px); box-shadow: 0 0 #0d47a1; background: #1976D2; }
+.ag-evm-light { width: 20px; height: 20px; border-radius: 50%; background: #900; border: 2px solid #333; box-shadow: inset 0 2px rgba(0,0,0,0.5); transition: 0.2s;}
+.ag-evm-light.on { background: #f00; box-shadow: 0 0 20px #f00; border-color:#f00;}
+
+/* Sc 5: Payoff */
+.ag-badge { font-size: 8rem; filter: drop-shadow(0 0 50px gold); transform: scale(0.1); transition: transform 2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.ag-scene.active .ag-badge { transform: scale(1); }
+.ag-flare { position: absolute; width: 200%; height: 2px; background: rgba(255,255,255,0.8); box-shadow: 0 0 20px #fff; transform: rotate(45deg); opacity: 0; }
+@keyframes agFlareSweep { 0% { top: -50%; opacity: 0; } 50% { opacity: 1; } 100% { top: 150%; opacity: 0; } }
+
+/* General Animations */
+@keyframes agFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+@keyframes agPulseGlow { 0%, 100% { box-shadow: 0 0 20px var(--grn); } 50% { box-shadow: 0 0 40px var(--grn); } }
+
+/* Voter Info Card (shown after scan) */
+.ag-voter-card { margin-top: 1.5rem; background: rgba(0,255,120,0.07); border: 1px solid rgba(0,255,120,0.4); border-radius: 12px; padding: 1.2rem 1.5rem; text-align: left; animation: agCardSlideIn 0.5s ease; }
+@keyframes agCardSlideIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform:translateY(0); } }
+.ag-voter-card-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; font-size: 1rem; color: #e0ffe8; }
+.ag-voter-card-row:last-child { margin-bottom: 0; }
+.ag-voter-card-row .ag-vc-icon { font-size: 1.5rem; flex-shrink: 0; }
+.ag-voter-card-row .ag-vc-label { color: #88c0d0; font-size: 0.8rem; margin-bottom: 0.1rem; }
+.ag-voter-card-row .ag-vc-val { font-weight: bold; font-size: 1.05rem; color: #fff; }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="chakra" aria-hidden="true"></div>
+    <h1>Indian Election Portal <span class="bilingual">भारतीय चुनाव पोर्टल</span></h1>
+</header>
+
+<nav role="tablist" aria-label="Main Features">
+    <button role="tab" aria-selected="true" aria-controls="eligibility" id="tab-eligibility" class="tab-btn" tabindex="0">Eligibility</button>
+    <button role="tab" aria-selected="false" aria-controls="booth" id="tab-booth" class="tab-btn" tabindex="-1">Locator</button>
+    <button role="tab" aria-selected="false" aria-controls="voterlist" id="tab-voterlist" class="tab-btn" tabindex="-1">Voter List</button>
+    <button role="tab" aria-selected="false" aria-controls="timeline" id="tab-timeline" class="tab-btn" tabindex="-1">Timeline</button>
+    <button role="tab" aria-selected="false" aria-controls="comic" id="tab-comic" class="tab-btn" tabindex="-1">Comic Journey</button>
+    <button role="tab" aria-selected="false" aria-controls="quiz" id="tab-quiz" class="tab-btn" tabindex="-1">Quiz</button>
+    <button role="tab" aria-selected="false" aria-controls="assistant" id="tab-assistant" class="tab-btn" tabindex="-1">Multilingual Assistant</button>
+    <button role="tab" aria-selected="false" aria-controls="agent-game" id="tab-agent-game" class="tab-btn" tabindex="-1">🕵️‍♂️ Hey Agents!</button>
+</nav>
+
+<main>
+    <!-- 1. Eligibility Checker -->
+    <section id="eligibility" role="tabpanel" aria-labelledby="tab-eligibility" class="panel active">
+        <h2>Eligibility Checker <span class="bilingual">पात्रता जांच</span></h2>
+        <div class="input-group">
+            <label for="dob">Date of Birth (DOB):</label>
+            <input type="date" id="dob" required>
+        </div>
+        <div class="input-group">
+            <label for="state">State / Union Territory:</label>
+            <select id="state">
+                <option value="">Select State/UT</option>
+                <optgroup label="States">
+                    <option value="AP">Andhra Pradesh</option>
+                    <option value="AR">Arunachal Pradesh</option>
+                    <option value="AS">Assam</option>
+                    <option value="BR">Bihar</option>
+                    <option value="CG">Chhattisgarh</option>
+                    <option value="GA">Goa</option>
+                    <option value="GJ">Gujarat</option>
+                    <option value="HR">Haryana</option>
+                    <option value="HP">Himachal Pradesh</option>
+                    <option value="JH">Jharkhand</option>
+                    <option value="KA">Karnataka</option>
+                    <option value="KL">Kerala</option>
+                    <option value="MP">Madhya Pradesh</option>
+                    <option value="MH">Maharashtra</option>
+                    <option value="MN">Manipur</option>
+                    <option value="ML">Meghalaya</option>
+                    <option value="MZ">Mizoram</option>
+                    <option value="NL">Nagaland</option>
+                    <option value="OD">Odisha</option>
+                    <option value="PB">Punjab</option>
+                    <option value="RJ">Rajasthan</option>
+                    <option value="SK">Sikkim</option>
+                    <option value="TN">Tamil Nadu</option>
+                    <option value="TG">Telangana</option>
+                    <option value="TR">Tripura</option>
+                    <option value="UP">Uttar Pradesh</option>
+                    <option value="UK">Uttarakhand</option>
+                    <option value="WB">West Bengal</option>
+                </optgroup>
+                <optgroup label="Union Territories">
+                    <option value="AN">Andaman and Nicobar Islands</option>
+                    <option value="CH">Chandigarh</option>
+                    <option value="DN">Dadra and Nagar Haveli and Daman and Diu</option>
+                    <option value="DL">Delhi</option>
+                    <option value="JK">Jammu and Kashmir</option>
+                    <option value="LA">Ladakh</option>
+                    <option value="LD">Lakshadweep</option>
+                    <option value="PY">Puducherry</option>
+                </optgroup>
+            </select>
+        </div>
+        <button class="btn-primary" onclick="checkEligibility()">Check Eligibility</button>
+        <div id="eligibility-res" class="result-msg" aria-live="polite"></div>
+    </section>
+
+    <!-- 2. Booth Locator -->
+    <section id="booth" role="tabpanel" aria-labelledby="tab-booth" class="panel">
+        <h2>Booth Locator <span class="bilingual">मतदान केंद्र खोजक</span></h2>
+        <p>Select your region to locate your polling station and view the ECI HQ.</p>
+        <div class="input-group">
+            <label for="booth-state">State / Union Territory:</label>
+            <select id="booth-state" onchange="locateBooth()">
+                <option value="">Select State/UT</option>
+                <optgroup label="States">
+                    <option value="AP">Andhra Pradesh</option>
+                    <option value="AR">Arunachal Pradesh</option>
+                    <option value="AS">Assam</option>
+                    <option value="BR">Bihar</option>
+                    <option value="CG">Chhattisgarh</option>
+                    <option value="GA">Goa</option>
+                    <option value="GJ">Gujarat</option>
+                    <option value="HR">Haryana</option>
+                    <option value="HP">Himachal Pradesh</option>
+                    <option value="JH">Jharkhand</option>
+                    <option value="KA">Karnataka</option>
+                    <option value="KL">Kerala</option>
+                    <option value="MP">Madhya Pradesh</option>
+                    <option value="MH">Maharashtra</option>
+                    <option value="MN">Manipur</option>
+                    <option value="ML">Meghalaya</option>
+                    <option value="MZ">Mizoram</option>
+                    <option value="NL">Nagaland</option>
+                    <option value="OD">Odisha</option>
+                    <option value="PB">Punjab</option>
+                    <option value="RJ">Rajasthan</option>
+                    <option value="SK">Sikkim</option>
+                    <option value="TN">Tamil Nadu</option>
+                    <option value="TG">Telangana</option>
+                    <option value="TR">Tripura</option>
+                    <option value="UP">Uttar Pradesh</option>
+                    <option value="UK">Uttarakhand</option>
+                    <option value="WB">West Bengal</option>
+                </optgroup>
+                <optgroup label="Union Territories">
+                    <option value="AN">Andaman and Nicobar Islands</option>
+                    <option value="CH">Chandigarh</option>
+                    <option value="DN">Dadra and Nagar Haveli and Daman and Diu</option>
+                    <option value="DL">Delhi</option>
+                    <option value="JK">Jammu and Kashmir</option>
+                    <option value="LA">Ladakh</option>
+                    <option value="LD">Lakshadweep</option>
+                    <option value="PY">Puducherry</option>
+                </optgroup>
+            </select>
+        </div>
+        <div id="booth-res" aria-live="polite" style="margin-top:1.5rem;"></div>
+    </section>
+
+    <!-- 3. Voter List -->
+    <section id="voterlist" role="tabpanel" aria-labelledby="tab-voterlist" class="panel">
+        <h2>Voter List Checker <span class="bilingual">मतदाता सूची</span></h2>
+        <div class="input-group">
+            <label for="v-name">Full Name:</label>
+            <input type="text" id="v-name" placeholder="e.g. Rahul Sharma">
+        </div>
+        <div class="input-group">
+            <label for="v-epic">EPIC Number (Voter ID):</label>
+            <input type="text" id="v-epic" placeholder="e.g. ABC1234567">
+        </div>
+        <button class="btn-primary" onclick="checkVoterList()">Search Roll</button>
+        <div id="voter-res" class="result-msg" aria-live="polite"></div>
+    </section>
+
+    <!-- 4. Timeline -->
+    <section id="timeline" role="tabpanel" aria-labelledby="tab-timeline" class="panel">
+        <h2>Election Timeline <span class="bilingual">चुनाव की समयरेखा</span></h2>
+        <p>Live Progress to Next General Elections:</p>
+        <div class="progress-container" aria-label="Election cycle progress">
+            <div class="progress-fill" id="time-prog"></div>
+        </div>
+        <div class="timeline-track">
+            <div class="timeline-item">
+                <h3>1. Notification & Nominations</h3>
+                <p>ECI announces dates. Candidates file affidavits.</p>
+            </div>
+            <div class="timeline-item">
+                <h3>2. Campaigning Phase</h3>
+                <p>Rallies and manifestos. Ends 48hrs before polls.</p>
+            </div>
+            <div class="timeline-item">
+                <h3>3. Voting Day</h3>
+                <p>Citizens cast their secret ballots via EVMs.</p>
+            </div>
+            <div class="timeline-item">
+                <h3>4. Counting & Results</h3>
+                <p>VVPATs cross-verified. Winners declared!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Enhanced Comic Strip -->
+    <section id="comic" role="tabpanel" aria-labelledby="tab-comic" class="panel">
+        <h2>Voter Narrative <span class="bilingual">मतदाता की कहानी</span></h2>
+        <div class="comic-stage">
+            <div class="comic-view" id="comic-view" aria-live="polite">
+                <div class="bubble" id="comic-bubble">Ready to vote for the first time!</div>
+                <div id="comic-emoji" style="transition: transform 0.3s; margin-top: 2rem;">🧍🏽</div>
+                <div class="praise-text" id="comic-praise">Great initiative! You are the future.</div>
+            </div>
+            <button class="btn-primary" style="margin-top:1.5rem;" onclick="nextComic()">Next Step in Journey ➡️</button>
+        </div>
+    </section>
+
+    <!-- 6. Main Quiz -->
+    <section id="quiz" role="tabpanel" aria-labelledby="tab-quiz" class="panel">
+        <h2>Civic Quiz <span class="bilingual">नागरिक प्रश्नोत्तरी</span></h2>
+        <div class="streak">Score: <span id="q-score">0</span>/3 🔥</div>
+        <h3 id="q-text" style="text-align:center; font-size:1.4rem;">Loading...</h3>
+        <div class="quiz-grid" id="q-opts" role="radiogroup"></div>
+        <button id="q-next" class="btn-primary" style="display:none; margin:2rem auto 0; visibility:hidden;" onclick="nextQuiz()">Next Question</button>
+    </section>
+
+    <!-- 7. Multilingual Assistant -->
+    <section id="assistant" role="tabpanel" aria-labelledby="tab-assistant" class="panel">
+        <h2>Election Assistant <span class="bilingual">चुनाव सहायक</span></h2>
+        <p style="text-align:center; margin-bottom: 1rem;">Ask me anything about the election process in your language!</p>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                <strong>ECI Virtual Guide</strong>
+                <select id="chat-lang" class="lang-select" onchange="changeLang()">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="bn">বাংলা (Bengali)</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                    <option value="mr">मराठी (Marathi)</option>
+                    <option value="ta">தமிழ் (Tamil)</option>
+                    <option value="gu">ગુજરાતી (Gujarati)</option>
+                    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                    <option value="ml">മലയാളം (Malayalam)</option>
+                    <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                    <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+                    <option value="as">অসমীয়া (Assamese)</option>
+                    <option value="ur">اردو (Urdu)</option>
+                    <option value="sa">संस्कृत (Sanskrit)</option>
+                    <option value="sd">سنڌي (Sindhi)</option>
+                    <option value="ks">کأشُر (Kashmiri)</option>
+                </select>
+            </div>
+            <div class="chat-history" id="chat-history" aria-live="polite">
+                <!-- Messages populated via JS -->
+            </div>
+            <div class="quick-replies" id="quick-replies">
+                <!-- Buttons populated via JS -->
+            </div>
+            <form class="chat-input" onsubmit="handleChatSubmit(event)">
+                <input type="text" id="chat-inp" placeholder="Type your question..." autocomplete="off">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 8. Cinematic Game (Hey Agents) -->
+    <section id="agent-game" role="tabpanel" aria-labelledby="tab-agent-game" class="panel" style="padding:0;">
+        <div id="ag-viewport" style="position:relative; width:100%; height:600px; overflow:hidden; background:#050505;">
+            
+            <!-- Audio Context Button (Needed for Web Audio API autoplay policy) -->
+            <button id="ag-start-audio" onclick="initAgAudio()" style="position:absolute; z-index:999; top:50%; left:50%; transform:translate(-50%,-50%); padding:1rem 2rem; font-size:1.5rem; background:var(--saf); color:#fff; border:none; border-radius:8px; cursor:pointer; font-family:'Press Start 2P', monospace; box-shadow: 0 0 30px var(--saf); transition: 0.2s;">START MISSION</button>
+
+            <!-- SCENE 1: The Approach -->
+            <div id="ag-sc1" class="ag-scene">
+                <div class="ag-street"></div>
+                <div class="ag-title-overlay">
+                    <h2>Hey Agents,<br>Help Me!</h2>
+                    <p style="font-size:1.2rem; color:#ccc; margin-bottom:2rem; font-weight:bold; letter-spacing:1px;">YOUR MISSION: CAST YOUR VOTE.</p>
+                    <button class="ag-holo-btn" onclick="agNextScene(2)" style="animation: agPulseGlow 2s infinite;">PROCEED TO CHECKPOINT</button>
+                </div>
+            </div>
+
+            <!-- SCENE 2: Eligibility Checkpoint -->
+            <div id="ag-sc2" class="ag-scene" style="background: radial-gradient(circle, #0a192f 0%, #000 100%);">
+                <div class="ag-agent-emoji">🕵️‍♂️</div>
+                <div class="ag-hologram" id="ag-holo-ui">
+                    <h3 style="color:#0096ff; margin-bottom:1rem; letter-spacing: 2px;">IDENTITY CHECKPOINT</h3>
+                    <p id="ag-scan-text" style="color:#88c0d0; margin-bottom:2rem; font-size:1.1rem;">"Agent, please present your EPIC ID for bio-scan."</p>
+                    <button id="ag-scan-btn" class="ag-holo-btn" onclick="agPerformScan()">INITIATE SCAN</button>
+                </div>
+            </div>
+
+            <!-- SCENE 3: Queue Navigation -->
+            <div id="ag-sc3" class="ag-scene">
+                <h3 style="position:absolute; top:30px; color:#fff; z-index:10; text-shadow:0 0 10px #000; font-size:1.5rem; letter-spacing:1px;">Navigate the Crowd</h3>
+                <div class="ag-crowd-area" id="ag-crowd">
+                    <!-- JS will populate emojis -->
+                </div>
+                <button id="ag-nav-btn" class="ag-path-btn" onclick="agNavigateCrowd()" style="display:none;">PATH CLEARED - ENTER BOOTH</button>
+            </div>
+
+            <!-- SCENE 4: The Booth -->
+            <div id="ag-sc4" class="ag-scene" style="background: radial-gradient(circle, #333 0%, #000 100%);">
+                <h3 style="color:#fff; margin-bottom:2rem; letter-spacing:3px; font-size:1.5rem; text-shadow: 0 0 10px #fff;">SECURE TERMINAL</h3>
+                <div class="ag-evm">
+                    <div class="ag-evm-screen" id="ag-evm-screen">READY</div>
+                    
+                    <div class="ag-evm-btn-row">
+                        <span style="font-weight:bold; font-size:1.2rem; color:#333;">Option 1</span>
+                        <button class="ag-evm-btn" onclick="agCastVote(1)"></button>
+                        <div class="ag-evm-light" id="ag-light-1"></div>
+                    </div>
+                    
+                    <div class="ag-evm-btn-row">
+                        <span style="font-weight:bold; font-size:1.2rem; color:#333;">Option 2</span>
+                        <button class="ag-evm-btn" onclick="agCastVote(2)"></button>
+                        <div class="ag-evm-light" id="ag-light-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCENE 5: Cinematic Payoff -->
+            <div id="ag-sc5" class="ag-scene" style="background: radial-gradient(circle, var(--saf) 0%, #000 100%); transition: background 2s, opacity 1s;">
+                <div class="ag-flare" style="animation: agFlareSweep 3s infinite;"></div>
+                <div class="ag-badge" id="ag-badge">🏅</div>
+                <h2 style="font-family:'Press Start 2P', monospace; margin-top:2rem; text-shadow:0 0 20px #fff; animation:agFloat 3s infinite; text-align:center;">MISSION COMPLETE</h2>
+                <p style="font-size:1.5rem; margin-top:1rem; text-align:center;">You have successfully cast your vote.</p>
+                <p style="color:#ffeb3b; font-weight:bold; font-size:1.2rem; letter-spacing:2px; margin-top:1rem;">DEMOCRACY AGENT UNLOCKED</p>
+                <button class="ag-holo-btn" onclick="location.reload()" style="max-width:200px; margin-top:2rem;">RESTART SYSTEM</button>
+            </div>
+
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <div class="stats-grid">
+        <div class="stat-box"><span class="stat-num">96.8 Cr+</span> Registered Voters</div>
+        <div class="stat-box"><span class="stat-num">10.5 Lakh</span> Polling Stations</div>
+        <div class="stat-box"><span class="stat-num">543</span> Lok Sabha Seats</div>
+        <div class="stat-box"><span class="stat-num">1950</span> National Helpline</div>
+    </div>
+    <p style="font-size:1.2rem; font-weight:bold; margin-bottom:0.5rem;">Article 324: Superintendence, direction and control of elections to be vested in an Election Commission.</p>
+    
+    <a href="https://voters.eci.gov.in/" target="_blank" rel="noopener noreferrer" class="official-link">
+        🔗 Visit Official ECI Voters Portal (voters.eci.gov.in)
+    </a>
+    
+    <p style="margin-top:2rem;">Jai Hind 🇮🇳</p>
+</footer>
+
+<script>
+/**
+ * @fileoverview Main Application Logic for the Indian Election Portal.
+ * Uses vanilla JS, JSDoc comments, and strict state management. No external APIs used.
+ */
+
+// --- UTILITIES & NAVIGATION ---
+
+/**
+ * Fires a celebratory confetti burst.
+ */
+function fireConfetti() {
+    const colors = ['#FF9933', '#FFFFFF', '#138808', '#000080'];
+    for(let i=0; i<80; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+    }
+}
+
+/**
+ * Handles tab switching and ARIA state.
+ */
+document.querySelectorAll('[role="tab"]').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('[role="tab"]').forEach(t => {
+            t.setAttribute('aria-selected', 'false'); t.setAttribute('tabindex', '-1');
+        });
+        this.setAttribute('aria-selected', 'true');
+        this.setAttribute('tabindex', '0');
+        const target = document.getElementById(this.getAttribute('aria-controls'));
+        target.classList.add('active');
+        
+        if(this.id === 'tab-timeline') {
+            setTimeout(() => { document.getElementById('time-prog').style.width = '75%'; }, 100);
+        }
+    });
+    
+    // Keyboard navigation
+    tab.addEventListener('keydown', e => {
+        if(e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+            let idx = tabs.indexOf(e.target);
+            idx = e.key === 'ArrowRight' ? (idx+1)%tabs.length : (idx-1+tabs.length)%tabs.length;
+            tabs[idx].focus();
+            tabs[idx].click();
+        }
+    });
+});
+
+// --- 1. ELIGIBILITY ---
+function checkEligibility() {
+    const dobInput = document.getElementById('dob').value;
+    const state = document.getElementById('state');
+    const stateName = state.options[state.selectedIndex].text;
+    const stateVal = state.value;
+    const res = document.getElementById('eligibility-res');
+    
+    if(!dobInput || !stateVal) {
+        res.className = 'result-msg error';
+        res.textContent = '❌ Please select your Date of Birth and State/UT.';
+        return;
+    }
+    
+    const age = (new Date() - new Date(dobInput)) / (365.25 * 24 * 60 * 60 * 1000);
+    if(age >= 18) {
+        res.className = 'result-msg success';
+        res.textContent = `✅ You are ${Math.floor(age)} years old. You are eligible to vote in ${stateName}!`;
+        fireConfetti();
+    } else {
+        res.className = 'result-msg error';
+        res.textContent = `❌ You are ${Math.floor(age)} years old. You must be at least 18 to vote. Wait a little longer!`;
+    }
+}
+
+// --- 2. BOOTH LOCATOR ---
+const boothDB = {
+  AP: { name:"Andhra Pradesh", date:"13 May 2026", phase:"Phase 4", hours:"7 AM – 6 PM", booths:[
+    {no:"AP-001", name:"Govt. High School, MG Road, Vijayawada",        ward:"Ward 12"},
+    {no:"AP-002", name:"Municipal Community Hall, Guntur",               ward:"Ward 5"},
+    {no:"AP-003", name:"Zilla Parishad Building, Tirupati",              ward:"Ward 9"}
+  ]},
+  AR: { name:"Arunachal Pradesh", date:"19 Apr 2026", phase:"Phase 1", hours:"7 AM – 5 PM", booths:[
+    {no:"AR-001", name:"Govt. Primary School, Itanagar",                 ward:"Block A"},
+    {no:"AR-002", name:"District Council Hall, Naharlagun",              ward:"Block B"},
+    {no:"AR-003", name:"Community Centre, Pasighat",                     ward:"Block C"}
+  ]},
+  AS: { name:"Assam", date:"26 Apr 2026", phase:"Phase 2", hours:"7 AM – 5 PM", booths:[
+    {no:"AS-001", name:"Cotton University Campus, Guwahati",             ward:"Ward 3"},
+    {no:"AS-002", name:"Dispur Govt. School, Dispur",                    ward:"Ward 7"},
+    {no:"AS-003", name:"Jorhat Town Hall, Jorhat",                       ward:"Ward 11"}
+  ]},
+  BR: { name:"Bihar", date:"07 May 2026", phase:"Phase 3", hours:"7 AM – 6 PM", booths:[
+    {no:"BR-001", name:"Patna City High School, Patna",                  ward:"Ward 2"},
+    {no:"BR-002", name:"Gaya Collectorate Annex, Gaya",                  ward:"Ward 8"},
+    {no:"BR-003", name:"Muzaffarpur Zilla School, Muzaffarpur",          ward:"Ward 14"}
+  ]},
+  CG: { name:"Chhattisgarh", date:"13 May 2026", phase:"Phase 4", hours:"7 AM – 5 PM", booths:[
+    {no:"CG-001", name:"Raipur Model School, Raipur",                    ward:"Zone A"},
+    {no:"CG-002", name:"Bilaspur Municipal Hall, Bilaspur",              ward:"Zone C"},
+    {no:"CG-003", name:"Durg Community Centre, Durg",                    ward:"Zone E"}
+  ]},
+  GA: { name:"Goa", date:"07 May 2026", phase:"Phase 3", hours:"7 AM – 6 PM", booths:[
+    {no:"GA-001", name:"Panaji Primary School, Panaji",                  ward:"Ward 1"},
+    {no:"GA-002", name:"Vasco Community Hall, Vasco da Gama",            ward:"Ward 4"},
+    {no:"GA-003", name:"Margao Municipal Building, Margao",              ward:"Ward 6"}
+  ]},
+  GJ: { name:"Gujarat", date:"13 May 2026", phase:"Phase 4", hours:"7 AM – 6 PM", booths:[
+    {no:"GJ-001", name:"Ahmedabad Corp School, Ahmedabad",               ward:"Ward 15"},
+    {no:"GJ-002", name:"Surat Nagarpalika Hall, Surat",                  ward:"Ward 22"},
+    {no:"GJ-003", name:"Vadodara District Office, Vadodara",             ward:"Ward 9"}
+  ]},
+  HR: { name:"Haryana", date:"19 May 2026", phase:"Phase 5", hours:"7 AM – 6 PM", booths:[
+    {no:"HR-001", name:"Chandigarh Model School, Gurugram",              ward:"Sector 14"},
+    {no:"HR-002", name:"Faridabad Zilla Parishad, Faridabad",            ward:"Sector 8"},
+    {no:"HR-003", name:"Panchkula Community Hall, Panchkula",            ward:"Sector 2"}
+  ]},
+  HP: { name:"Himachal Pradesh", date:"19 Apr 2026", phase:"Phase 1", hours:"7 AM – 5 PM", booths:[
+    {no:"HP-001", name:"Shimla Ridge School, Shimla",                    ward:"Ward A"},
+    {no:"HP-002", name:"Dharamshala Govt. College, Dharamshala",         ward:"Ward C"},
+    {no:"HP-003", name:"Manali Block Development Office, Manali",        ward:"Ward F"}
+  ]},
+  JH: { name:"Jharkhand", date:"07 May 2026", phase:"Phase 3", hours:"7 AM – 5 PM", booths:[
+    {no:"JH-001", name:"Ranchi Zilla School, Ranchi",                    ward:"Ward 3"},
+    {no:"JH-002", name:"Dhanbad Municipal Hall, Dhanbad",               ward:"Ward 10"},
+    {no:"JH-003", name:"Jamshedpur Community Centre, Jamshedpur",       ward:"Ward 7"}
+  ]},
+  KA: { name:"Karnataka", date:"13 May 2026", phase:"Phase 4", hours:"7 AM – 6 PM", booths:[
+    {no:"KA-001", name:"BBMP Primary School, Bengaluru",                 ward:"Ward 56"},
+    {no:"KA-002", name:"Mysuru City Corp Hall, Mysuru",                  ward:"Ward 12"},
+    {no:"KA-003", name:"Hubli Dharwad School, Dharwad",                  ward:"Ward 8"}
+  ]},
+  KL: { name:"Kerala", date:"26 Apr 2026", phase:"Phase 2", hours:"7 AM – 6 PM", booths:[
+    {no:"KL-001", name:"Thiruvananthapuram Govt. School",                ward:"Division 4"},
+    {no:"KL-002", name:"Kochi Corporation Hall, Ernakulam",              ward:"Division 9"},
+    {no:"KL-003", name:"Kozhikode District Collectorate",               ward:"Division 2"}
+  ]},
+  MP: { name:"Madhya Pradesh", date:"13 May 2026", phase:"Phase 4", hours:"7 AM – 6 PM", booths:[
+    {no:"MP-001", name:"Bhopal Model School, Bhopal",                    ward:"Zone B"},
+    {no:"MP-002", name:"Indore Nagar Nigam Hall, Indore",               ward:"Zone D"},
+    {no:"MP-003", name:"Jabalpur Zilla Panchayat, Jabalpur",            ward:"Zone G"}
+  ]},
+  MH: { name:"Maharashtra", date:"19 May 2026", phase:"Phase 5", hours:"7 AM – 6 PM", booths:[
+    {no:"MH-001", name:"BMC School, Borivali, Mumbai",                   ward:"Ward K-W"},
+    {no:"MH-002", name:"Pune Corp Primary School, Pune",                 ward:"Ward 15"},
+    {no:"MH-003", name:"Nagpur Zilla Parishad, Nagpur",                  ward:"Ward 22"}
+  ]},
+  MN: { name:"Manipur", date:"19 Apr 2026", phase:"Phase 1", hours:"7 AM – 4 PM", booths:[
+    {no:"MN-001", name:"Imphal Govt. Higher Sec. School",               ward:"Block I"},
+    {no:"MN-002", name:"Thoubal District Hall, Thoubal",                ward:"Block II"},
+    {no:"MN-003", name:"Churachandpur Community Hall",                  ward:"Block IV"}
+  ]},
+  ML: { name:"Meghalaya", date:"26 Apr 2026", phase:"Phase 2", hours:"7 AM – 5 PM", booths:[
+    {no:"ML-001", name:"Shillong Govt. Boys' School",                    ward:"Ward 1"},
+    {no:"ML-002", name:"Tura District Council Hall, Tura",               ward:"Ward 3"},
+    {no:"ML-003", name:"Jowai Community Centre, Jaintia Hills",          ward:"Ward 2"}
+  ]},
+  MZ: { name:"Mizoram", date:"19 Apr 2026", phase:"Phase 1", hours:"7 AM – 4 PM", booths:[
+    {no:"MZ-001", name:"Aizawl Civil Secretariat Annex",                 ward:"Aizawl E"},
+    {no:"MZ-002", name:"Lunglei District Hall, Lunglei",                 ward:"Lunglei N"},
+    {no:"MZ-003", name:"Champhai Govt. School, Champhai",               ward:"Champhai W"}
+  ]},
+  NL: { name:"Nagaland", date:"19 Apr 2026", phase:"Phase 1", hours:"7 AM – 4 PM", booths:[
+    {no:"NL-001", name:"Kohima Science College Hall",                    ward:"Ward A"},
+    {no:"NL-002", name:"Dimapur Town Hall, Dimapur",                    ward:"Ward C"},
+    {no:"NL-003", name:"Mokokchung District Office",                    ward:"Ward B"}
+  ]},
+  OD: { name:"Odisha", date:"07 May 2026", phase:"Phase 3", hours:"7 AM – 6 PM", booths:[
+    {no:"OD-001", name:"Bhubaneswar Corporation School",                 ward:"Ward 8"},
+    {no:"OD-002", name:"Cuttack Zilla School, Cuttack",                 ward:"Ward 5"},
+    {no:"OD-003", name:"Rourkela Govt. College Annex",                  ward:"Ward 14"}
+  ]},
+  PB: { name:"Punjab", date:"07 May 2026", phase:"Phase 3", hours:"7 AM – 6 PM", booths:[
+    {no:"PB-001", name:"Amritsar Municipal School, Amritsar",            ward:"Ward 21"},
+    {no:"PB-002", name:"Ludhiana Zilla Parishad, Ludhiana",             ward:"Ward 33"},
+    {no:"PB-003", name:"Patiala Govt. College Hall, Patiala",           ward:"Ward 12"}
+  ]},
+  RJ: { name:"Rajasthan", date:"13 May 2026", phase:"Phase 4", hours:"7 AM – 6 PM", booths:[
+    {no:"RJ-001", name:"Jaipur Corp Primary School",                     ward:"Ward 45"},
+    {no:"RJ-002", name:"Jodhpur Zilla Parishad, Jodhpur",               ward:"Ward 18"},
+    {no:"RJ-003", name:"Udaipur Municipal Hall, Udaipur",                ward:"Ward 7"}
+  ]},
+  SK: { name:"Sikkim", date:"26 Apr 2026", phase:"Phase 2", hours:"7 AM – 5 PM", booths:[
+    {no:"SK-001", name:"Gangtok Govt. Senior School",                    ward:"Block 1"},
+    {no:"SK-002", name:"Namchi Community Hall, Namchi",                  ward:"Block 2"},
+    {no:"SK-003", name:"Gyalshing District Office, West Sikkim",         ward:"Block 3"}
+  ]},
+  TN: { name:"Tamil Nadu", date:"07 May 2026", phase:"Phase 3", hours:"7 AM – 6 PM", booths:[
+    {no:"TN-001", name:"Chennai Corp School, T. Nagar, Chennai",         ward:"Ward 108"},
+    {no:"TN-002", name:"Coimbatore Zilla Parishad, Coimbatore",          ward:"Ward 67"},
+    {no:"TN-003", name:"Madurai Municipal Hall, Madurai",                ward:"Ward 42"}
+  ]},
+  TG: { name:"Telangana", date:"13 May 2026", phase:"Phase 4", hours:"7 AM – 6 PM", booths:[
+    {no:"TG-001", name:"GHMC School, Secunderabad, Hyderabad",           ward:"Ward 31"},
+    {no:"TG-002", name:"Warangal District Collectorate",                 ward:"Ward 14"},
+    {no:"TG-003", name:"Nizamabad Municipal Corp Hall",                  ward:"Ward 9"}
+  ]},
+  TR: { name:"Tripura", date:"26 Apr 2026", phase:"Phase 2", hours:"7 AM – 5 PM", booths:[
+    {no:"TR-001", name:"Agartala Govt. Boys' School",                    ward:"Ward 2"},
+    {no:"TR-002", name:"Dharmanagar District Hall",                      ward:"Ward 5"},
+    {no:"TR-003", name:"Udaipur Town Community Centre",                  ward:"Ward 3"}
+  ]},
+  UP: { name:"Uttar Pradesh", date:"19 May 2026", phase:"Phase 5", hours:"7 AM – 6 PM", booths:[
+    {no:"UP-001", name:"Lucknow Nagar Nigam School, Hazratganj",         ward:"Ward 62"},
+    {no:"UP-002", name:"Kanpur Primary School, Kidwai Nagar",            ward:"Ward 45"},
+    {no:"UP-003", name:"Varanasi District School, Lanka",                ward:"Ward 89"}
+  ]},
+  UK: { name:"Uttarakhand", date:"07 May 2026", phase:"Phase 3", hours:"7 AM – 5 PM", booths:[
+    {no:"UK-001", name:"Dehradun Corp School, Rajpur Road",              ward:"Ward 12"},
+    {no:"UK-002", name:"Haridwar Municipal Hall, Haridwar",              ward:"Ward 8"},
+    {no:"UK-003", name:"Haldwani Community Centre, Nainital",            ward:"Ward 6"}
+  ]},
+  WB: { name:"West Bengal", date:"19 May 2026", phase:"Phase 5", hours:"7 AM – 6 PM", booths:[
+    {no:"WB-001", name:"KMC School, Shyambazar, Kolkata",               ward:"Ward 4"},
+    {no:"WB-002", name:"Howrah Municipal Corp Hall",                     ward:"Ward 11"},
+    {no:"WB-003", name:"Durgapur Steel Township School, Paschim Burdwan",ward:"Ward 19"}
+  ]},
+  // Union Territories
+  AN: { name:"Andaman & Nicobar Islands", date:"26 Apr 2026", phase:"Phase 2", hours:"7 AM – 5 PM", booths:[
+    {no:"AN-001", name:"Port Blair Govt. School, Aberdeen Bazaar",       ward:"Div. 1"},
+    {no:"AN-002", name:"Car Nicobar Panchayat Hall",                     ward:"Div. 2"},
+    {no:"AN-003", name:"Neil Island Community Centre",                   ward:"Div. 3"}
+  ]},
+  CH: { name:"Chandigarh", date:"07 May 2026", phase:"Phase 3", hours:"7 AM – 6 PM", booths:[
+    {no:"CH-001", name:"Govt. Model Sr. Sec. School, Sector 16",        ward:"Sector 16"},
+    {no:"CH-002", name:"DAV School, Sector 8",                           ward:"Sector 8"},
+    {no:"CH-003", name:"Panjab University Campus Hall, Sector 14",       ward:"Sector 14"}
+  ]},
+  DN: { name:"Dadra, Nagar Haveli & Daman Diu", date:"13 May 2026", phase:"Phase 4", hours:"7 AM – 6 PM", booths:[
+    {no:"DN-001", name:"Silvassa Govt. School, Dadra",                   ward:"Ward 1"},
+    {no:"DN-002", name:"Daman Municipal Hall, Daman",                    ward:"Ward 3"},
+    {no:"DN-003", name:"Diu Community Centre, Diu",                      ward:"Ward 2"}
+  ]},
+  DL: { name:"Delhi", date:"25 May 2026", phase:"Phase 6", hours:"7 AM – 6 PM", booths:[
+    {no:"DL-001", name:"MCD School, Karol Bagh, New Delhi",              ward:"Ward 88"},
+    {no:"DL-002", name:"Govt. Boys' School, Dwarka Sector 10",           ward:"Ward 52"},
+    {no:"DL-003", name:"Delhi Cantonment Community Hall, Delhi Cantt.",  ward:"Ward 1"}
+  ]},
+  JK: { name:"Jammu & Kashmir", date:"07 May 2026", phase:"Phase 3", hours:"7 AM – 5 PM", booths:[
+    {no:"JK-001", name:"Jammu Govt. High School, Gandhi Nagar",          ward:"Ward 11"},
+    {no:"JK-002", name:"Srinagar Municipal School, Lal Chowk",          ward:"Ward 5"},
+    {no:"JK-003", name:"Anantnag District School, Anantnag",            ward:"Ward 7"}
+  ]},
+  LA: { name:"Ladakh", date:"19 Apr 2026", phase:"Phase 1", hours:"7 AM – 4 PM", booths:[
+    {no:"LA-001", name:"Leh District Collectorate Hall",                 ward:"Sector A"},
+    {no:"LA-002", name:"Kargil Community Centre, Kargil",               ward:"Sector B"},
+    {no:"LA-003", name:"Zanskar Block Development Office",              ward:"Sector C"}
+  ]},
+  LD: { name:"Lakshadweep", date:"26 Apr 2026", phase:"Phase 2", hours:"7 AM – 5 PM", booths:[
+    {no:"LD-001", name:"Kavaratti Island Panchayat Hall",                ward:"Island 1"},
+    {no:"LD-002", name:"Agatti Island Community Centre",                 ward:"Island 2"},
+    {no:"LD-003", name:"Minicoy Island School",                          ward:"Island 3"}
+  ]},
+  PY: { name:"Puducherry", date:"13 May 2026", phase:"Phase 4", hours:"7 AM – 6 PM", booths:[
+    {no:"PY-001", name:"Puducherry Govt. Girls' School, White Town",     ward:"Division 1"},
+    {no:"PY-002", name:"Karaikal Municipal Hall, Karaikal",              ward:"Division 3"},
+    {no:"PY-003", name:"Yanam Community Centre, Yanam",                  ward:"Division 4"}
+  ]}
+};
+
+function locateBooth() {
+    const val  = document.getElementById('booth-state').value;
+    const res  = document.getElementById('booth-res');
+    if (!val) { res.innerHTML = ''; return; }
+
+    const d = boothDB[val];
+    if (!d)  { res.innerHTML = '<p class="result-msg error">No data available for this region.</p>'; return; }
+
+    const boothCards = d.booths.map(b => `
+        <div style="background:rgba(255,153,51,0.08); border:1.5px solid var(--saf); border-radius:10px; padding:1rem 1.2rem; display:flex; align-items:flex-start; gap:1rem;">
+            <div style="font-size:2rem;">🏫</div>
+            <div>
+                <div style="font-weight:bold; color:var(--nvy); font-size:1rem;">${b.name}</div>
+                <div style="font-size:0.85rem; color:#555; margin-top:0.3rem;">📌 Booth No: <strong>${b.no}</strong> &nbsp;|&nbsp; 🗳️ ${b.ward}</div>
+            </div>
+        </div>`).join('');
+
+    res.innerHTML = `
+        <div style="background:linear-gradient(135deg,#fff8f0,#f0fff4); border:2px solid var(--grn); border-radius:14px; padding:1.5rem; margin-bottom:1.5rem;">
+            <h3 style="color:var(--grn); margin:0 0 0.8rem; font-size:1.3rem;">📍 ${d.name} — Polling Information</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:1.5rem; margin-bottom:1.2rem;">
+                <div style="background:#138808; color:#fff; border-radius:8px; padding:0.6rem 1.2rem; font-weight:bold;">
+                    📅 Election Date: ${d.date}
+                </div>
+                <div style="background:#FF9933; color:#fff; border-radius:8px; padding:0.6rem 1.2rem; font-weight:bold;">
+                    🗳️ ${d.phase}
+                </div>
+                <div style="background:#000080; color:#fff; border-radius:8px; padding:0.6rem 1.2rem; font-weight:bold;">
+                    ⏰ Polling Hours: ${d.hours}
+                </div>
+            </div>
+            <h4 style="color:var(--nvy); margin:0 0 0.8rem;">Sample Polling Booths:</h4>
+            <div style="display:flex; flex-direction:column; gap:0.8rem;">${boothCards}</div>
+            <p style="margin-top:1rem; font-size:0.85rem; color:#777;">⚠️ These are representative booths. Visit <a href="https://voters.eci.gov.in" target="_blank" style="color:var(--grn); font-weight:bold;">voters.eci.gov.in</a> to find your exact assigned booth.</p>
+        </div>`;
+}
+
+// --- 3. VOTER LIST ---
+function checkVoterList() {
+    const epic = document.getElementById('v-epic').value;
+    const res = document.getElementById('voter-res');
+    if(epic.length > 5) {
+        res.className = 'result-msg success';
+        res.innerHTML = `✅ EPIC <strong>${epic}</strong> found! Part No: 12, Serial: 45. You are enrolled.`;
+    } else {
+        res.className = 'result-msg error';
+        res.textContent = '❌ Invalid EPIC. Please enter correct Voter ID.';
+    }
+}
+
+// --- 5. ENHANCED COMIC STRIP ---
+const comicData = [
+    { text: "Age 18! Time to register on voters.eci.gov.in.", emo: "🧑🏽", bg: "#e3f2fd", praise: "Fantastic! Registering is the first step of a responsible citizen." },
+    { text: "Reading candidate manifestos and backgrounds...", emo: "📰", bg: "#fff3e0", praise: "Smart choice! An informed voter builds a strong democracy." },
+    { text: "Finding my polling booth location online.", emo: "💻", bg: "#e8f5e9", praise: "Being prepared saves time on Election Day. Well done!" },
+    { text: "Standing in line at the booth. It moves fast!", emo: "🧍🏽🧍🏾‍♀️🧍🏽‍♂️", bg: "#f3e5f5", praise: "Patience pays off. Your community appreciates your presence!" },
+    { text: "Showing my EPIC ID to the polling officer.", emo: "🪪", bg: "#e0f7fa", praise: "Identity verified! You are moments away from making history." },
+    { text: "Pressing the EVM button for my candidate!", emo: "🔘", bg: "#ffebee", praise: "Beep! That sound is the heartbeat of our nation." },
+    { text: "VVPAT slip verified. My vote was recorded correctly.", emo: "🧾", bg: "#f1f8e9", praise: "Transparency is key. Always verify your vote!" },
+    { text: "I voted! Proud to be an Indian. Jai Hind!", emo: "🇮🇳", bg: "#fff8e1", praise: "Congratulations! You have successfully shaped the future of India. 🎉" }
+];
+let comicIdx = 0;
+
+function nextComic() {
+    comicIdx = (comicIdx + 1) % comicData.length;
+    const b = document.getElementById('comic-bubble');
+    const view = document.getElementById('comic-view');
+    const emo = document.getElementById('comic-emoji');
+    const praise = document.getElementById('comic-praise');
+    
+    b.classList.remove('visible');
+    praise.classList.remove('visible');
+    emo.style.transform = "scale(0)";
+    
+    setTimeout(() => {
+        emo.textContent = comicData[comicIdx].emo;
+        view.style.background = comicData[comicIdx].bg;
+        b.textContent = comicData[comicIdx].text;
+        praise.textContent = comicData[comicIdx].praise;
+        
+        emo.style.transform = "scale(1)";
+        b.classList.add('visible');
+        praise.classList.add('visible');
+        
+        if(comicIdx === comicData.length - 1) fireConfetti();
+    }, 300);
+}
+setTimeout(() => {
+    document.getElementById('comic-bubble').classList.add('visible');
+    document.getElementById('comic-praise').classList.add('visible');
+}, 500);
+
+// --- 6. QUIZ ENGINE ---
+const qData = [
+    { q: "Minimum voting age in India?", o: ["16", "18", "21", "25"], a: 1 },
+    { q: "What does EVM stand for?", o: ["Electronic Voting Machine", "Election Vote Maker", "Early Voting Method", "None"], a: 0 },
+    { q: "Which article establishes the ECI?", o: ["Art 370", "Art 324", "Art 14", "Art 21"], a: 1 }
+];
+let qIdx = 0, qScore = 0;
+
+function loadQuiz() {
+    const q = qData[qIdx];
+    document.getElementById('q-text').textContent = q.q;
+    const opts = document.getElementById('q-opts');
+    opts.innerHTML = '';
+    document.getElementById('q-next').style.display = 'none';
+    
+    q.o.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-btn'; btn.textContent = opt; btn.setAttribute('role', 'radio');
+        btn.onclick = () => answerQuiz(i, btn);
+        opts.appendChild(btn);
+    });
+}
+
+function answerQuiz(idx, btn) {
+    const opts = document.querySelectorAll('#q-opts .quiz-btn');
+    opts.forEach(b => b.disabled = true);
+    if(idx === qData[qIdx].a) {
+        btn.classList.add('correct');
+        qScore++; document.getElementById('q-score').textContent = qScore;
+        fireConfetti();
+    } else {
+        btn.classList.add('wrong');
+        opts[qData[qIdx].a].classList.add('correct');
+    }
+    document.getElementById('q-next').style.display = 'block';
+    document.getElementById('q-next').style.visibility = 'visible';
+}
+
+function nextQuiz() {
+    qIdx++;
+    if(qIdx < qData.length) loadQuiz();
+    else { document.getElementById('q-text').textContent = "Quiz Complete! Score: " + qScore; document.getElementById('q-opts').innerHTML=''; document.getElementById('q-next').style.display='none'; }
+}
+loadQuiz();
+
+// --- 7. MULTILINGUAL ASSISTANT ---
+
+// Static translation dictionary mapped to standard query keywords
+const botDict = {
+    "en": { "greeting": "Hello! I am your Election Assistant. How can I help you today?", "age": "You must be 18 years or older to vote in India.", "register": "You can register to vote online at voters.eci.gov.in using Form 6.", "documents": "You need a passport size photo, age proof, and address proof.", "booth": "You can find your polling booth using the 'Booth Locator' tab.", "default": "I'm sorry, try asking about 'age', 'register', 'documents', or 'booth'.", "q_age": "What is the voting age?", "q_reg": "How to register?", "q_doc": "Documents required?" },
+    "hi": { "greeting": "नमस्ते! मैं आपका चुनाव सहायक हूँ।", "age": "मतदान करने के लिए आयु 18 वर्ष होनी चाहिए।", "register": "voters.eci.gov.in पर ऑनलाइन पंजीकरण करें।", "documents": "फोटो, आयु प्रमाण और पते के प्रमाण की आवश्यकता है।", "booth": "'बूथ लोकेटर' टैब का उपयोग करें।", "default": "क्षमा करें, 'उम्र', 'पंजीकरण', 'दस्तावेज', या 'बूथ' के बारे में पूछें।", "q_age": "उम्र क्या है?", "q_reg": "पंजीकरण कैसे करें?", "q_doc": "क्या दस्तावेज चाहिए?" },
+    "bn": { "greeting": "নমস্কার! আমি আপনার নির্বাচন সহকারী।", "age": "ভোট দেওয়ার জন্য বয়স ১৮ বছর হতে হবে।", "register": "voters.eci.gov.in-এ অনলাইনে নিবন্ধন করুন।", "documents": "ছবি, বয়সের প্রমাণ এবং ঠিকানার প্রমাণ প্রয়োজন।", "booth": "'বুথ লোকেটর' ব্যবহার করুন।", "default": "দুঃখিত, বয়স, নিবন্ধন, বা বুথ সম্পর্কে জিজ্ঞাসা করুন।", "q_age": "বয়স কত?", "q_reg": "কীভাবে নিবন্ধন করবেন?", "q_doc": "কী নথিপত্র প্রয়োজন?" },
+    "te": { "greeting": "నమస్కారం! నేను మీ ఎన్నికల సహాయకుడిని.", "age": "ఓటు వేయడానికి 18 సంవత్సరాలు ఉండాలి.", "register": "voters.eci.gov.in లో నమోదు చేసుకోండి.", "documents": "ఫోటో, వయస్సు మరియు చిరునామా ధృవీకరణ అవసరం.", "booth": "'బూత్ లొకేటర్' ఉపయోగించండి.", "default": "క్షమించండి, వయస్సు, నమోదు గురించి అడగండి.", "q_age": "వయస్సు ఎంత?", "q_reg": "ఎలా నమోదు చేయాలి?", "q_doc": "ఏ పత్రాలు అవసరం?" },
+    "mr": { "greeting": "नमस्कार! मी तुमचा निवडणूक सहाय्यक आहे.", "age": "मतदानासाठी वय १८ वर्षे असावे.", "register": "voters.eci.gov.in वर नोंदणी करा.", "documents": "फोटो, वयाचा आणि पत्त्याचा पुरावा आवश्यक आहे.", "booth": "'बूथ लोकेटर' वापरा.", "default": "क्षमस्व, वय, नोंदणी किंवा बूथबद्दल विचारा.", "q_age": "वय काय आहे?", "q_reg": "नोंदणी कशी करावी?", "q_doc": "कोणती कागदपत्रे आवश्यक आहेत?" },
+    "ta": { "greeting": "வணக்கம்! நான் உங்கள் தேர்தல் உதவியாளர்.", "age": "வாக்களிக்க 18 வயது ஆகியிருக்க வேண்டும்.", "register": "voters.eci.gov.in இல் பதிவு செய்யலாம்.", "documents": "புகைப்படம், வயது மற்றும் முகவரி சான்றிதழ் தேவை.", "booth": "'பூத் லொக்கேட்டர்' பயன்படுத்தவும்.", "default": "மன்னிக்கவும், வயது, பதிவு பற்றி கேட்கவும்.", "q_age": "வாக்களிக்கும் வயது என்ன?", "q_reg": "எப்படி பதிவு செய்வது?", "q_doc": "என்ன ஆவணங்கள் தேவை?" },
+    "gu": { "greeting": "નમસ્તે! હું તમારો ચૂંટણી સહાયક છું.", "age": "મતદાન કરવા માટે ઉંમર 18 વર્ષ હોવી જોઈએ.", "register": "voters.eci.gov.in પર નોંધણી કરાવો.", "documents": "ફોટો, ઉંમર અને સરનામાનો પુરાવો જોઈએ.", "booth": "'બૂથ લોકેટર' નો ઉપયોગ કરો.", "default": "માફ કરશો, ઉંમર અથવા નોંધણી વિશે પૂછો.", "q_age": "ઉંમર કેટલી છે?", "q_reg": "કેવી રીતે નોંધણી કરવી?", "q_doc": "કયા દસ્તાવેજો જોઈએ?" },
+    "kn": { "greeting": "ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ ಚುನಾವಣಾ ಸಹಾಯಕ.", "age": "ಮತದಾನ ಮಾಡಲು 18 ವರ್ಷ ವಯಸ್ಸಾಗಿರಬೇಕು.", "register": "voters.eci.gov.in ನಲ್ಲಿ ನೋಂದಾಯಿಸಿ.", "documents": "ಭಾವಚಿತ್ರ, ವಯಸ್ಸು ಮತ್ತು ವಿಳಾಸದ ಪುರಾವೆ ಬೇಕು.", "booth": "'ಬೂತ್ ಲೊಕೇಟರ್' ಬಳಸಿ.", "default": "ಕ್ಷಮಿಸಿ, ವಯಸ್ಸು ಅಥವಾ ನೋಂದಣಿ ಬಗ್ಗೆ ಕೇಳಿ.", "q_age": "ವಯಸ್ಸು ಎಷ್ಟು?", "q_reg": "ನೋಂದಾಯಿಸುವುದು ಹೇಗೆ?", "q_doc": "ಯಾವ ದಾಖಲೆಗಳು ಬೇಕು?" },
+    "ml": { "greeting": "നമസ്കാരം! ഞാൻ നിങ്ങളുടെ തിരഞ്ഞെടുപ്പ് സഹായിയാണ്.", "age": "വോട്ട് ചെയ്യാൻ 18 വയസ്സ് തികയണം.", "register": "voters.eci.gov.in ൽ രജിസ്റ്റർ ചെയ്യുക.", "documents": "ഫോട്ടോ, പ്രായം, മേൽവിലാസം എന്നിവയുടെ തെളിവ് വേണം.", "booth": "'ബൂത്ത് ലൊക്കേറ്റർ' ഉപയോഗിക്കുക.", "default": "ക്ഷമിക്കണം, പ്രായം അല്ലെങ്കിൽ രജിസ്ട്രേഷൻ ചോദിക്കുക.", "q_age": "പ്രായം എത്രയാണ്?", "q_reg": "എങ്ങനെ രജിസ്റ്റർ ചെയ്യാം?", "q_doc": "എന്തൊക്കെ രേഖകൾ വേണം?" },
+    "or": { "greeting": "ନମସ୍କାର! ମୁଁ ଆପଣଙ୍କ ନିର୍ବାଚନ ସହାୟକ।", "age": "ଭୋଟ ଦେବା ପାଇଁ ବୟସ ୧୮ ବର୍ଷ ହେବା ଆବଶ୍ୟକ।", "register": "voters.eci.gov.in ରେ ପଞ୍ଜିକରଣ କରନ୍ତୁ।", "documents": "ଫଟୋ, ବୟସ ଏବଂ ଠିକଣା ପ୍ରମାଣ ଦରକାର।", "booth": "'ବୁଥ୍ ଲୋକେଟର' ବ୍ୟବହାର କରନ୍ତୁ।", "default": "କ୍ଷମା କରିବେ, ବୟସ କିମ୍ବା ପଞ୍ଜିକରଣ ବିଷୟରେ ପଚାରନ୍ତୁ।", "q_age": "ବୟସ କେତେ?", "q_reg": "କିପରି ପଞ୍ଜିକରଣ କରିବେ?", "q_doc": "କେଉଁ କାଗଜପତ୍ର ଦରକାର?" },
+    "pa": { "greeting": "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਤੁਹਾਡਾ ਚੋਣ ਸਹਾਇਕ ਹਾਂ।", "age": "ਵੋਟ ਪਾਉਣ ਲਈ ਉਮਰ 18 ਸਾਲ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ।", "register": "voters.eci.gov.in 'ਤੇ ਰਜਿਸਟਰ ਕਰੋ।", "documents": "ਫੋਟੋ, ਉਮਰ ਅਤੇ ਪਤੇ ਦਾ ਸਬੂਤ ਚਾਹੀਦਾ ਹੈ।", "booth": "'ਬੂਥ ਲੋਕੇਟਰ' ਦੀ ਵਰਤੋਂ ਕਰੋ।", "default": "ਮੁਆਫ ਕਰਨਾ, ਉਮਰ ਜਾਂ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਬਾਰੇ ਪੁੱਛੋ।", "q_age": "ਉਮਰ ਕਿੰਨੀ ਹੈ?", "q_reg": "ਰਜਿਸਟਰ ਕਿਵੇਂ ਕਰੀਏ?", "q_doc": "ਕਿਹੜੇ ਦਸਤਾਵੇਜ਼ ਚਾਹੀਦੇ ਹਨ?" },
+    "as": { "greeting": "নমস্কাৰ! মই আপোনাৰ নিৰ্বাচন সহায়ক।", "age": "ভোট দিবলৈ বয়স ১৮ বছৰ হ'ব লাগিব।", "register": "voters.eci.gov.in ত পঞ্জীয়ন কৰক।", "documents": "ফটো, বয়স আৰু ঠিকনাৰ প্ৰমাণ লাগিব।", "booth": "'বুথ লোকেটেৰ' ব্যৱহাৰ কৰক।", "default": "ক্ষমা কৰিব, বয়স বা পঞ্জীয়নৰ বিষয়ে সুধক।", "q_age": "বয়স কিমান?", "q_reg": "কেনেদৰে পঞ্জীয়ন কৰিব?", "q_doc": "কি কি নথিপত্ৰ লাগিব?" },
+    "ur": { "greeting": "آداب! میں آپ کا الیکشن اسسٹنٹ ہوں۔", "age": "ووٹ دینے کے لئے عمر 18 سال ہونی چاہئے۔", "register": "voters.eci.gov.in پر رجسٹر کریں۔", "documents": "تصویر، عمر اور پتے کا ثبوت درکار ہے۔", "booth": "'بوتھ لوکیٹر' استعمال کریں۔", "default": "معاف کیجئے، عمر یا رجسٹریشن کے بارے میں پوچھیں۔", "q_age": "عمر کتنی ہے؟", "q_reg": "رجسٹر کیسے کریں؟", "q_doc": "کون سے کاغذات درکار ہیں؟" },
+    "sa": { "greeting": "नमस्ते! अहम् भवतः निर्वाचन सहायकः अस्मि।", "age": "मतदानाय वयः १८ वर्षाणि भवेत्।", "register": "voters.eci.gov.in मध्ये पञ्जीकरणं कुर्वन्तु।", "documents": "चित्रं, वयसः तथा निवासस्य प्रमाणं आवश्यकम्।", "booth": "'बूथ लोकेटर' इत्यस्य उपयोगं कुर्वन्तु।", "default": "क्षम्यताम्, वयः वा पञ्जीकरणं विषये पृच्छन्तु।", "q_age": "वयः कियत् अस्ति?", "q_reg": "कथं पञ्जीकरणं कर्तव्यम्?", "q_doc": "कानि प्रमाणानि आवश्यकानि?" },
+    "sd": { "greeting": "نمستي! مان توهان جو چونڊ مددگار آهيان.", "age": "ووٽ ڏيڻ لاءِ عمر 18 سال هجڻ گهرجي.", "register": "voters.eci.gov.in تي رجسٽر ٿيو.", "documents": "تصوير، عمر ۽ پتي جو ثبوت گهرجي.", "booth": "'بوٿ لوڪيٽر' استعمال ڪريو.", "default": "معاف ڪجو، عمر يا رجسٽريشن بابت پڇو.", "q_age": "عمر ڪيتري آهي؟", "q_reg": "رجسٽر ڪيئن ڪجي؟", "q_doc": "ڪهڙا دستاويز گهرجن؟" },
+    "ks": { "greeting": "آداب! بہ چھُس تُہُند اِلیکشن اَسِسٹنٹ.", "age": "ووٹ دِنہٕ خٲطرٕ گژھِ وٲنٛس 18 ؤری آسٕنۍ.", "register": "voters.eci.gov.in پؠٹھ کٔرِو رَجِسٹر.", "documents": "فوتو، وٲنٛس تہٕ پَتہٕ چُھ ضۆروٗری.", "booth": "'بوٗتھ لوکیٹَر' کٔرِو اِستِمال.", "default": "مأفی، وٲنٛس یا رَجِسٹریشَن مُتَلِق پٕرژھِو.", "q_age": "وٲنٛس کٲژا چھےٚ؟", "q_reg": "رَجِسٹر کِتھ کٔنۍ کَرون؟", "q_doc": "کِم دَستاویز چھِ ضۆروٗری؟" }
+};
+
+let currLang = "en";
+const chatHistory = document.getElementById('chat-history');
+const qrContainer = document.getElementById('quick-replies');
+
+function addMsg(text, isUser) {
+    const d = document.createElement('div');
+    d.className = 'chat-msg ' + (isUser ? 'msg-user' : 'msg-bot');
+    d.textContent = text;
+    chatHistory.appendChild(d);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+function renderQuickReplies() {
+    qrContainer.innerHTML = '';
+    const dict = botDict[currLang];
+    const qrs = [
+        { text: dict.q_age, key: 'age' },
+        { text: dict.q_reg, key: 'register' },
+        { text: dict.q_doc, key: 'documents' }
+    ];
+    qrs.forEach(qr => {
+        const btn = document.createElement('button');
+        btn.className = 'qr-btn';
+        btn.textContent = qr.text;
+        btn.onclick = () => {
+            addMsg(qr.text, true);
+            setTimeout(() => addMsg(botDict[currLang][qr.key], false), 500);
+        };
+        qrContainer.appendChild(btn);
+    });
+}
+
+function changeLang() {
+    currLang = document.getElementById('chat-lang').value;
+    chatHistory.innerHTML = '';
+    addMsg(botDict[currLang].greeting, false);
+    renderQuickReplies();
+}
+
+function handleChatSubmit(e) {
+    e.preventDefault();
+    const inp = document.getElementById('chat-inp');
+    const txt = inp.value.trim().toLowerCase();
+    if(!txt) return;
+    
+    addMsg(inp.value, true);
+    inp.value = '';
+    
+    setTimeout(() => {
+        const dict = botDict[currLang];
+        let reply = dict.default;
+        
+        // Simple keyword matching across languages (checking english keywords for simplicity of input, 
+        // but translating output. Also checking translated substrings if possible)
+        if(txt.includes('age') || txt.includes('old') || txt.includes('उम्र') || txt.includes('वय') || txt.includes('வயது')) reply = dict.age;
+        else if(txt.includes('register') || txt.includes('apply') || txt.includes('पंजीकरण') || txt.includes('नोंदणी') || txt.includes('பதிவு')) reply = dict.register;
+        else if(txt.includes('doc') || txt.includes('proof') || txt.includes('दस्तावेज') || txt.includes('कागदप')) reply = dict.documents;
+        else if(txt.includes('booth') || txt.includes('where') || txt.includes('बूथ') || txt.includes('வாக்குச்')) reply = dict.booth;
+        
+        addMsg(reply, false);
+    }, 600);
+}
+
+// Init chat
+changeLang();
+
+// --- 8. HEY AGENTS CINEMATIC GAME LOGIC ---
+
+let agAudioCtx;
+
+function initAgAudio() {
+    document.getElementById('ag-start-audio').style.display = 'none';
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if(AudioContext) {
+        agAudioCtx = new AudioContext();
+    }
+    agNextScene(1);
+    playAgSound(400, 'sine', 0.5); // startup chime
+}
+
+function playAgSound(freq, type, duration, vol=0.1) {
+    if(!agAudioCtx) return;
+    const osc = agAudioCtx.createOscillator();
+    const gain = agAudioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, agAudioCtx.currentTime);
+    
+    gain.gain.setValueAtTime(vol, agAudioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, agAudioCtx.currentTime + duration);
+    
+    osc.connect(gain);
+    gain.connect(agAudioCtx.destination);
+    osc.start();
+    osc.stop(agAudioCtx.currentTime + duration);
+}
+
+function agNextScene(n) {
+    document.querySelectorAll('.ag-scene').forEach(el => el.classList.remove('active'));
+    document.getElementById('ag-sc'+n).classList.add('active');
+    
+    if(n === 3) initAgCrowd();
+    if(n === 4) document.getElementById('ag-evm-screen').textContent = "READY";
+}
+
+function agPerformScan() {
+    const btn = document.getElementById('ag-scan-btn');
+    const txt = document.getElementById('ag-scan-text');
+    const holo = document.getElementById('ag-holo-ui');
+    
+    btn.style.display = 'none';
+    txt.textContent = "Scanning biometrics...";
+    holo.style.boxShadow = "0 0 50px rgba(255,255,255,0.8)";
+    
+    // Simulate scan sound sweeps
+    let sweeps = 0;
+    let intv = setInterval(() => {
+        playAgSound(800 + (sweeps*100), 'sawtooth', 0.1, 0.05);
+        sweeps++;
+        if(sweeps > 10) clearInterval(intv);
+    }, 150);
+
+    setTimeout(() => {
+        // Success — show voter assignment card
+        playAgSound(1200, 'sine', 1, 0.2);
+        playAgSound(1600, 'sine', 1, 0.2);
+        holo.style.borderColor = "#0f0";
+        holo.style.boxShadow = "0 0 50px rgba(0,255,0,0.5)";
+        agShowVoterInfo(txt);
+    }, 2000);
+}
+
+/** Generates a mock voter assignment card and injects it into the hologram */
+function agShowVoterInfo(container) {
+    // Mock data — realistic Indian election assignment
+    const booths  = [
+        { name: "Govt. Primary School, Sector 12", num: "BT-042" },
+        { name: "Community Hall, Gandhi Nagar",    num: "BT-107" },
+        { name: "Municipal Building, Ward 7",       num: "BT-231" },
+        { name: "Nehru Bal Bhavan, Block C",        num: "BT-085" }
+    ];
+    const booth = booths[Math.floor(Math.random() * booths.length)];
+
+    // Generate a date ~7–14 days from today (realistic scheduling)
+    const d = new Date();
+    d.setDate(d.getDate() + 7 + Math.floor(Math.random() * 8));
+    const dateStr = d.toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    const timeSlot = ["7:00 AM – 1:00 PM", "7:00 AM – 5:00 PM", "8:00 AM – 6:00 PM"][Math.floor(Math.random()*3)];
+
+    container.innerHTML = `
+        <span style="color:#0f0; font-size:1.4rem; font-weight:bold;">✅ IDENTITY CONFIRMED</span>
+        <div class="ag-voter-card">
+            <div class="ag-voter-card-row">
+                <span class="ag-vc-icon">📅</span>
+                <div><div class="ag-vc-label">VOTING DATE</div><div class="ag-vc-val">${dateStr}</div></div>
+            </div>
+            <div class="ag-voter-card-row">
+                <span class="ag-vc-icon">⏰</span>
+                <div><div class="ag-vc-label">POLLING HOURS</div><div class="ag-vc-val">${timeSlot}</div></div>
+            </div>
+            <div class="ag-voter-card-row">
+                <span class="ag-vc-icon">📍</span>
+                <div><div class="ag-vc-label">ASSIGNED BOOTH</div><div class="ag-vc-val">${booth.name}</div></div>
+            </div>
+            <div class="ag-voter-card-row">
+                <span class="ag-vc-icon">🔢</span>
+                <div><div class="ag-vc-label">BOOTH NUMBER</div><div class="ag-vc-val">${booth.num}</div></div>
+            </div>
+        </div>
+    `;
+    // Add proceed button
+    const proceedBtn = document.createElement('button');
+    proceedBtn.className = 'ag-holo-btn';
+    proceedBtn.style.marginTop = '1.2rem';
+    proceedBtn.textContent = 'PROCEED TO BOOTH ➜';
+    proceedBtn.onclick = () => agNextScene(3);
+    document.getElementById('ag-holo-ui').appendChild(proceedBtn);
+    playAgSound(500, 'sine', 0.4, 0.15);
+}
+
+function initAgCrowd() {
+    const crowd = document.getElementById('ag-crowd');
+    crowd.innerHTML = '';
+    const emojis = ['👨‍💼', '👩‍⚕️', '👳‍♂️', '👷‍♀️', '🧑‍🎓', '🧕', '👨‍🌾', '👵'];
+    
+    for(let i=0; i<20; i++) {
+        let p = document.createElement('div');
+        p.className = 'ag-person';
+        p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        p.style.left = (10 + Math.random()*80) + '%';
+        p.style.top = (20 + Math.random()*60) + '%';
+        p.style.transform = `scale(${0.5 + Math.random()})`;
+        crowd.appendChild(p);
+    }
+    
+    setTimeout(() => {
+        // Part the crowd (simulate clearing a path)
+        document.querySelectorAll('.ag-person').forEach((el, idx) => {
+            el.style.transform = `translateX(${idx % 2 === 0 ? '-200px' : '200px'}) scale(${0.5 + Math.random()})`;
+            el.style.opacity = '0.2';
+        });
+        playAgSound(300, 'triangle', 2, 0.1);
+        document.getElementById('ag-nav-btn').style.display = 'block';
+    }, 1500);
+}
+
+function agNavigateCrowd() {
+    document.getElementById('ag-nav-btn').style.display = 'none';
+    agNextScene(4);
+}
+
+function agCastVote(btnIdx) {
+    playAgSound(600, 'square', 0.1, 0.1); // Button click
+    document.getElementById('ag-evm-screen').textContent = "PROCESSING";
+    
+    setTimeout(() => {
+        // EVM Beep (Long 3 sec beep like real EVM)
+        playAgSound(3000, 'square', 3, 0.1);
+        document.getElementById('ag-light-'+btnIdx).classList.add('on');
+        
+        setTimeout(() => {
+            document.getElementById('ag-light-'+btnIdx).classList.remove('on');
+            agNextScene(5);
+            
+            // Victory Fanfare
+            setTimeout(() => playAgSound(523.25, 'sine', 0.5, 0.2), 500); // C5
+            setTimeout(() => playAgSound(659.25, 'sine', 0.5, 0.2), 700); // E5
+            setTimeout(() => playAgSound(783.99, 'sine', 1.0, 0.2), 900); // G5
+            setTimeout(() => playAgSound(1046.50, 'sine', 2.0, 0.2), 1200); // C6
+            
+        }, 3000);
+    }, 500);
+}
+
+
+</script>
+</body>
+</html>

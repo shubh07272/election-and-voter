@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Democracy in Action: The Election Process</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --accent: #8b5cf6;
+            --focus-ring: #60a5fa;
+            --font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        header {
+            padding: 2rem 1rem;
+            text-align: center;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid var(--surface-hover);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Tab Navigation */
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .tab-button {
+            background: var(--surface);
+            color: var(--text-main);
+            border: 2px solid var(--surface-hover);
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button:hover {
+            background: var(--surface-hover);
+            transform: translateY(-2px);
+        }
+
+        .tab-button[aria-selected="true"] {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 1rem;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .tab-panel[aria-hidden="false"] {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Mode 1: Data Viz */
+        .chart-wrapper {
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid var(--surface-hover);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+        }
+
+        .bar-chart {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            height: 350px;
+            align-items: flex-end;
+            margin-top: 2rem;
+            border-bottom: 2px solid var(--surface-hover);
+            border-left: 2px solid var(--surface-hover);
+            padding-bottom: 1rem;
+            position: relative;
+        }
+        
+        .y-axis {
+            position: absolute;
+            left: -40px;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .bar {
+            width: 100%;
+            max-width: 80px;
+            background: linear-gradient(to top, var(--primary), #93c5fd);
+            border-radius: 0.5rem 0.5rem 0 0;
+            transition: height 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 0.5rem;
+            color: var(--bg-color);
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .bar:hover, .bar:focus {
+            filter: brightness(1.2);
+            cursor: pointer;
+        }
+
+        .bar-label {
+            text-align: center;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Mode 2: Timeline */
+        .timeline-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background: var(--surface-hover);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 50%;
+            position: relative;
+            margin-bottom: 2.5rem;
+            width: 100%;
+        }
+
+        .timeline-item:nth-child(even) {
+            justify-content: flex-start;
+            padding-right: 0;
+            padding-left: 50%;
+        }
+
+        .timeline-content {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            border: 1px solid var(--surface-hover);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        
+        .timeline-item:nth-child(odd) .timeline-content { margin-right: 2.5rem; }
+        .timeline-item:nth-child(even) .timeline-content { margin-left: 2.5rem; }
+
+        .timeline-content:hover, .timeline-content:focus-within {
+            transform: scale(1.03);
+            border-color: var(--accent);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            top: 20px;
+            right: -2.85rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--accent);
+            border-radius: 50%;
+            border: 4px solid var(--bg-color);
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .timeline-item:nth-child(even) .timeline-dot {
+            right: auto;
+            left: -2.85rem;
+        }
+        
+        .timeline-content h3 { color: var(--primary); margin-bottom: 0.5rem; }
+
+        /* Mode 3: Comic */
+        .comic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .comic-panel {
+            background: #fff;
+            color: #000;
+            border: 5px solid #000;
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            box-shadow: 8px 8px 0px rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            min-height: 320px;
+            transition: transform 0.2s;
+        }
+        
+        .comic-panel:hover {
+            transform: rotate(-1deg) scale(1.02);
+        }
+
+        .speech-bubble {
+            background: #fef08a;
+            padding: 1rem;
+            border: 3px solid #000;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            position: relative;
+            margin-bottom: auto;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 30px;
+            border-width: 15px 15px 0;
+            border-style: solid;
+            border-color: #000 transparent transparent transparent;
+        }
+
+        .comic-art {
+            font-size: 6rem;
+            text-align: center;
+            margin-top: 2rem;
+            line-height: 1;
+        }
+        
+        .comic-caption {
+            background: #000;
+            color: #fff;
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        /* Mode 4: Quiz */
+        .quiz-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 3rem;
+            border: 1px solid var(--surface-hover);
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--surface-hover);
+        }
+
+        .quiz-score {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--secondary);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+        }
+
+        .quiz-question {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .quiz-btn {
+            background: var(--bg-color);
+            color: var(--text-main);
+            border: 2px solid var(--surface-hover);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .quiz-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .quiz-btn.correct {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--secondary);
+            color: #34d399;
+        }
+
+        .quiz-btn.wrong {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger);
+            color: #f87171;
+        }
+
+        .quiz-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        
+        .quiz-feedback {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            min-height: 4rem;
+        }
+
+        .next-btn {
+            display: none;
+            margin: 1.5rem auto 0;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .next-btn:hover { background: var(--primary-hover); }
+
+        /* Mode 5: Mario Game */
+        .game-wrapper {
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid var(--surface-hover);
+        }
+
+        .game-world {
+            position: relative;
+            height: 350px;
+            background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 60%, #8B4513 60%, #5c2c0b 100%);
+            border-radius: 0.75rem;
+            border: 4px solid #1e293b;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+        }
+        
+        .scenery {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.9;
+        }
+        .cloud1 { top: 20px; left: 10%; animation: drift 25s linear infinite; }
+        .cloud2 { top: 40px; left: 60%; animation: drift 35s linear infinite; font-size: 2rem; }
+        .building { bottom: 40%; right: 5%; font-size: 5rem; }
+
+        @keyframes drift {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(-200px); }
+        }
+
+        .platform {
+            position: absolute;
+            bottom: 40%;
+            height: 30px;
+            background: repeating-linear-gradient(45deg, #cc7832, #cc7832 10px, #a65d21 10px, #a65d21 20px);
+            border: 3px solid #6b3e15;
+            border-radius: 4px;
+        }
+
+        .player {
+            position: absolute;
+            font-size: 3rem;
+            bottom: calc(40% + 30px);
+            left: 10%;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 10;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
+        }
+
+        .game-ui {
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
+
+        .game-story {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            min-height: 3.5rem;
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            box-shadow: 0 4px 0 var(--primary-hover);
+        }
+
+        .action-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--primary-hover);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .timeline-container::before { left: 30px; }
+            .timeline-item, .timeline-item:nth-child(even) {
+                justify-content: flex-start;
+                padding-left: 70px;
+                padding-right: 0;
+            }
+            .timeline-item:nth-child(odd) .timeline-content,
+            .timeline-item:nth-child(even) .timeline-content {
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+            .timeline-dot, .timeline-item:nth-child(even) .timeline-dot {
+                left: 19px; /* 30px - half width */
+                right: auto;
+            }
+            .bar-chart { gap: 0.5rem; }
+            .bar-label { font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Democracy Quest</h1>
+        <p>Interactive journey through the election process.</p>
+        <nav aria-label="Main Navigation" style="margin-top: 1.5rem;">
+            <div class="tab-list" role="tablist">
+                <button role="tab" aria-selected="true" aria-controls="panel-viz" id="tab-viz" class="tab-button" tabindex="0">📊 Data</button>
+                <button role="tab" aria-selected="false" aria-controls="panel-timeline" id="tab-timeline" class="tab-button" tabindex="-1">⏱️ Timeline</button>
+                <button role="tab" aria-selected="false" aria-controls="panel-comic" id="tab-comic" class="tab-button" tabindex="-1">📖 Story</button>
+                <button role="tab" aria-selected="false" aria-controls="panel-quiz" id="tab-quiz" class="tab-button" tabindex="-1">🎯 Quiz</button>
+                <button role="tab" aria-selected="false" aria-controls="panel-game" id="tab-game" class="tab-button" tabindex="-1">🎮 Game</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Mode 1: Data Visualization -->
+        <section id="panel-viz" role="tabpanel" aria-labelledby="tab-viz" aria-hidden="false" class="tab-panel">
+            <div class="section-header">
+                <h2>Voter Turnout by Generation</h2>
+                <p>An interactive look at civic participation rates.</p>
+            </div>
+            <div class="chart-wrapper">
+                <div class="bar-chart" aria-label="Bar chart showing voter turnout percentage by generation" role="img">
+                    <div class="y-axis" aria-hidden="true">
+                        <span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar" data-height="51" style="height: 0%" aria-label="Gen Z: 51%" tabindex="0">51%</div>
+                        <div class="bar-label">Gen Z</div>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar" data-height="62" style="height: 0%" aria-label="Millennials: 62%" tabindex="0">62%</div>
+                        <div class="bar-label">Millennials</div>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar" data-height="71" style="height: 0%" aria-label="Gen X: 71%" tabindex="0">71%</div>
+                        <div class="bar-label">Gen X</div>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar" data-height="76" style="height: 0%" aria-label="Boomers: 76%" tabindex="0">76%</div>
+                        <div class="bar-label">Boomers</div>
+                    </div>
+                </div>
+                <p style="text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+                    *Illustrative data representing historical trends. Hover/focus bars for details.
+                </p>
+            </div>
+        </section>
+
+        <!-- Mode 2: Step Timeline -->
+        <section id="panel-timeline" role="tabpanel" aria-labelledby="tab-timeline" aria-hidden="true" class="tab-panel">
+            <div class="section-header">
+                <h2>The Election Cycle</h2>
+                <p>Follow the steps from candidate registration to inauguration.</p>
+            </div>
+            <div class="timeline-container">
+                <div class="timeline-item">
+                    <div class="timeline-dot">1</div>
+                    <div class="timeline-content" tabindex="0">
+                        <h3>Registration & Declaration</h3>
+                        <p>Citizens register to vote. Candidates officially declare their intention to run and file necessary paperwork with the election commission.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">2</div>
+                    <div class="timeline-content" tabindex="0">
+                        <h3>Campaigning & Debates</h3>
+                        <p>Candidates share their platforms, hold rallies, air advertisements, and debate opponents to win over the public's support.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">3</div>
+                    <div class="timeline-content" tabindex="0">
+                        <h3>Election Day</h3>
+                        <p>Citizens go to polling stations to cast their secret ballots. Poll workers ensure the integrity of the voting process.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">4</div>
+                    <div class="timeline-content" tabindex="0">
+                        <h3>Counting & Results</h3>
+                        <p>Ballots are securely counted by officials. Preliminary results are announced, followed by an official certification of the vote count.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mode 3: Comic Panels -->
+        <section id="panel-comic" role="tabpanel" aria-labelledby="tab-comic" aria-hidden="true" class="tab-panel">
+            <div class="section-header">
+                <h2>First Time Voter</h2>
+                <p>A short story about exercising your civic duty.</p>
+            </div>
+            <div class="comic-grid">
+                <article class="comic-panel" tabindex="0" aria-label="Comic panel 1: Person realizing they are old enough to vote.">
+                    <div class="speech-bubble">I just turned 18! Time to make my voice heard in the local election!</div>
+                    <div class="comic-art">🧑🏾‍s</div>
+                    <div class="comic-caption">Step 1: Get Inspired</div>
+                </article>
+                <article class="comic-panel" tabindex="0" aria-label="Comic panel 2: Person researching candidates on a laptop.">
+                    <div class="speech-bubble">Hmm, let's see what these candidates stand for. I need to read their platforms.</div>
+                    <div class="comic-art">💻</div>
+                    <div class="comic-caption">Step 2: Research</div>
+                </article>
+                <article class="comic-panel" tabindex="0" aria-label="Comic panel 3: Person at the ballot box.">
+                    <div class="speech-bubble">Got my ID! Ready to cast my secret ballot.</div>
+                    <div class="comic-art">🗳️</div>
+                    <div class="comic-caption">Step 3: Vote</div>
+                </article>
+                <article class="comic-panel" tabindex="0" aria-label="Comic panel 4: Person proudly wearing an I Voted sticker.">
+                    <div class="speech-bubble">I voted! Every single vote shapes our community's future.</div>
+                    <div class="comic-art">🇺🇸</div>
+                    <div class="comic-caption">Step 4: Celebrate</div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Mode 4: Gamified Quiz -->
+        <section id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz" aria-hidden="true" class="tab-panel">
+            <div class="section-header">
+                <h2>Civic Knowledge Challenge</h2>
+                <p>Test your understanding of the democratic process.</p>
+            </div>
+            <div class="quiz-container">
+                <div class="quiz-header">
+                    <span id="quiz-progress" aria-live="polite">Question 1 of 3</span>
+                    <span class="quiz-score">Score: <span id="score-display">0</span></span>
+                </div>
+                
+                <h3 id="question-text" class="quiz-question" aria-live="assertive">Loading question...</h3>
+                
+                <div id="options-container" class="quiz-options" role="radiogroup" aria-labelledby="question-text">
+                    <!-- Options injected via JS -->
+                </div>
+                
+                <div id="quiz-feedback" class="quiz-feedback" aria-live="polite"></div>
+                <button id="next-btn" class="next-btn">Next Question</button>
+            </div>
+        </section>
+
+        <!-- Mode 5: Mario-style Game -->
+        <section id="panel-game" role="tabpanel" aria-labelledby="tab-game" aria-hidden="true" class="tab-panel">
+            <div class="section-header">
+                <h2>Path to Parliament</h2>
+                <p>Navigate the campaign trail in this branching adventure!</p>
+            </div>
+            <div class="game-wrapper">
+                <div class="game-world" aria-hidden="true">
+                    <div class="scenery cloud1">☁️</div>
+                    <div class="scenery cloud2">☁️</div>
+                    <div class="scenery building">🏛️</div>
+                    
+                    <div class="platform" style="width: 20%; left: 5%;"></div>
+                    <div class="platform" style="width: 20%; left: 35%;"></div>
+                    <div class="platform" style="width: 25%; left: 70%;"></div>
+                    
+                    <div id="player" class="player">🏃</div>
+                </div>
+                
+                <div class="game-ui">
+                    <div id="game-story" class="game-story" aria-live="polite">
+                        You've decided to run for Mayor! What is your very first step?
+                    </div>
+                    <div id="game-controls" class="game-controls">
+                        <!-- Buttons injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- Accessibility & Tab Management ---
+        const tabs = document.querySelectorAll('[role="tab"]');
+        const panels = document.querySelectorAll('[role="tabpanel"]');
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => activateTab(tab));
+            
+            // Keyboard navigation for tabs
+            tab.addEventListener('keydown', (e) => {
+                let targetTab = null;
+                if (e.key === 'ArrowRight') {
+                    targetTab = tabs[(index + 1) % tabs.length];
+                } else if (e.key === 'ArrowLeft') {
+                    targetTab = tabs[(index - 1 + tabs.length) % tabs.length];
+                }
+                
+                if (targetTab) {
+                    targetTab.focus();
+                    activateTab(targetTab);
+                }
+            });
+        });
+
+        function activateTab(selectedTab) {
+            tabs.forEach(t => {
+                t.setAttribute('aria-selected', 'false');
+                t.setAttribute('tabindex', '-1');
+            });
+            panels.forEach(p => p.setAttribute('aria-hidden', 'true'));
+
+            selectedTab.setAttribute('aria-selected', 'true');
+            selectedTab.setAttribute('tabindex', '0');
+            const targetPanelId = selectedTab.getAttribute('aria-controls');
+            const targetPanel = document.getElementById(targetPanelId);
+            targetPanel.setAttribute('aria-hidden', 'false');
+
+            // Trigger animations specific to panels
+            if (targetPanelId === 'panel-viz') animateChart();
+            if (targetPanelId === 'panel-game' && gameState.currentNode === 0) resetGame();
+        }
+
+        // --- Mode 1: Data Viz Animation ---
+        function animateChart() {
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => {
+                bar.style.height = '0%';
+                // Small delay to allow display:block to apply before animating
+                setTimeout(() => {
+                    bar.style.height = bar.getAttribute('data-height') + '%';
+                }, 50);
+            });
+        }
+        // Run once on load
+        window.addEventListener('DOMContentLoaded', animateChart);
+
+        // --- Mode 4: Quiz Logic ---
+        const quizData = [
+            {
+                q: "What is the primary purpose of a primary election?",
+                opts: ["To elect the President", "To choose a political party's candidate", "To pass new local laws", "To recall a politician"],
+                ans: 1
+            },
+            {
+                q: "Which demographic group historically has the highest voter turnout?",
+                opts: ["Ages 18-29", "Ages 30-44", "Ages 45-59", "Ages 60+"],
+                ans: 3
+            },
+            {
+                q: "What does a 'secret ballot' ensure?",
+                opts: ["Votes are cast anonymously to prevent coercion", "Only government officials know who you voted for", "The election date is kept secret", "Candidates cannot campaign on election day"],
+                ans: 0
+            }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+
+        const qText = document.getElementById('question-text');
+        const optContainer = document.getElementById('options-container');
+        const feedback = document.getElementById('quiz-feedback');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreDisplay = document.getElementById('score-display');
+        const progressDisplay = document.getElementById('quiz-progress');
+
+        function loadQuestion() {
+            feedback.innerHTML = "";
+            nextBtn.style.display = "none";
+            const q = quizData[currentQ];
+            progressDisplay.textContent = `Question ${currentQ + 1} of ${quizData.length}`;
+            qText.textContent = q.q;
+            
+            optContainer.innerHTML = '';
+            q.opts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-btn';
+                btn.setAttribute('role', 'radio');
+                btn.setAttribute('aria-checked', 'false');
+                btn.textContent = opt;
+                btn.onclick = () => handleAnswer(idx, btn);
+                optContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(idx, selectedBtn) {
+            // Disable all
+            const btns = optContainer.querySelectorAll('.quiz-btn');
+            btns.forEach(b => b.disabled = true);
+            
+            const q = quizData[currentQ];
+            selectedBtn.setAttribute('aria-checked', 'true');
+
+            if (idx === q.ans) {
+                selectedBtn.classList.add('correct');
+                feedback.innerHTML = "✅ Correct! Great job.";
+                feedback.style.color = "var(--secondary)";
+                score += 100;
+                scoreDisplay.textContent = score;
+            } else {
+                selectedBtn.classList.add('wrong');
+                btns[q.ans].classList.add('correct');
+                feedback.innerHTML = "❌ Incorrect. The right answer is highlighted.";
+                feedback.style.color = "var(--danger)";
+            }
+
+            nextBtn.style.display = "block";
+            nextBtn.focus();
+        }
+
+        nextBtn.onclick = () => {
+            currentQ++;
+            if (currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                qText.textContent = "Quiz Complete!";
+                optContainer.innerHTML = `<p style="font-size:1.2rem; text-align:center;">Final Score: <strong>${score}</strong> / ${quizData.length * 100}</p>`;
+                feedback.innerHTML = "";
+                nextBtn.style.display = "none";
+                const restartBtn = document.createElement('button');
+                restartBtn.className = 'action-btn';
+                restartBtn.textContent = 'Restart Quiz';
+                restartBtn.onclick = () => { currentQ=0; score=0; scoreDisplay.textContent=0; loadQuestion(); };
+                optContainer.appendChild(restartBtn);
+            }
+        };
+
+        // Initialize quiz
+        loadQuestion();
+
+        // --- Mode 5: Branching Game Logic ---
+        const player = document.getElementById('player');
+        const gameStory = document.getElementById('game-story');
+        const gameControls = document.getElementById('game-controls');
+
+        // Nodes map out the branching narrative
+        // pos: left percentage for the character to move to
+        const gameNodes = {
+            0: {
+                text: "You've decided to run for office! What is your first step?",
+                pos: "10%",
+                choices: [
+                    { label: "File Official Paperwork", next: 1 },
+                    { label: "Hold a Rally Immediately", next: "fail_1" }
+                ]
+            },
+            1: {
+                text: "Paperwork filed! Now, your opponent challenges you to a debate.",
+                pos: "40%",
+                choices: [
+                    { label: "Study Policy & Prepare", next: 2 },
+                    { label: "Ignore it and post memes", next: "fail_2" }
+                ]
+            },
+            2: {
+                text: "You nailed the debate! It's Election Day. Strategy?",
+                pos: "75%",
+                choices: [
+                    { label: "Get Out The Vote Drive", next: "win" },
+                    { label: "Assume you already won", next: "fail_3" }
+                ]
+            },
+            "fail_1": {
+                text: "Oh no! You held a rally but weren't legally registered on the ballot. Campaign over.",
+                pos: "10%",
+                choices: [{ label: "Try Again", next: 0 }]
+            },
+            "fail_2": {
+                text: "You looked unprepared during the debate and lost public trust. Campaign over.",
+                pos: "40%",
+                choices: [{ label: "Try Again", next: 0 }]
+            },
+            "fail_3": {
+                text: "Voter turnout was low because you didn't remind them to vote. You lost by a slim margin.",
+                pos: "75%",
+                choices: [{ label: "Try Again", next: 0 }]
+            },
+            "win": {
+                text: "🎉 Congratulations! Your hard work paid off. You are elected!",
+                pos: "80%",
+                choices: [{ label: "Play Again", next: 0 }]
+            }
+        };
+
+        let gameState = { currentNode: 0 };
+
+        function renderGameNode(nodeId) {
+            gameState.currentNode = nodeId;
+            const node = gameNodes[nodeId];
+            
+            // Move player
+            player.style.left = node.pos;
+            
+            // If win, jump character up
+            if (nodeId === 'win') {
+                player.style.bottom = "calc(40% + 80px)";
+                setTimeout(() => { player.style.bottom = "calc(40% + 30px)"; }, 300);
+            } else if (nodeId.toString().includes('fail')) {
+                // Character falls down slightly
+                player.style.transform = "rotate(90deg)";
+            } else {
+                player.style.transform = "rotate(0deg)";
+                player.style.bottom = "calc(40% + 30px)";
+            }
+
+            // Update UI
+            gameStory.textContent = node.text;
+            gameControls.innerHTML = '';
+            
+            node.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = 'action-btn';
+                btn.textContent = choice.label;
+                btn.onclick = () => renderGameNode(choice.next);
+                gameControls.appendChild(btn);
+            });
+        }
+
+        function resetGame() {
+            renderGameNode(0);
+        }
+
+        // Initialize game
+        resetGame();
+
+    </script>
+</body>
+</html>
